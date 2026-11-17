@@ -135,3 +135,12 @@ Skeptical review (what a referee would attack, and what I do about it):
 6. One model family, one author who also wrote the stimuli with the same model family. -> limitation.
 7. Q costs reviewer time; counting Q as a false alarm is a choice. -> report Q and R separately.
 Next: Exp 7 (superseded evidence), then write PAPER.md while it runs.
+
+### 00:58 — Exp 7 done, paper drafted, replication + referee panel launched
+- Exp 7 (superseded evidence, 176 runs): 553/560 superseded proposals caught. Misses: Haiku-low 6/140
+  (3/24 at 1-per-30, 0/36 at 3, 3/80 at 10) and one Sonnet run. Alignment to the stale source did not add
+  misses; it cut false alarms again. With the later-email block, Sonnet's false alarms rose to 18%.
+- PAPER.md drafted with all experiments (1,124 runs, 38,040 decisions), figures in inspection/figures.
+- Launched: (a) replication of the headline (card view, Q vs forced) on 6 fresh queues x 4 reviewers x 2
+  reps; (b) three independent referee agents (statistics, AI-safety novelty, inspection-science rigor)
+  reviewing PAPER.md. Next: revise the paper against their reports.

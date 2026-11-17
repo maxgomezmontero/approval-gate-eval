@@ -482,3 +482,25 @@ def build_exp7(out_dir: Path = ROOT, key_dir: Path | None = None) -> list[str]:
                                                               encoding="utf-8", newline="\n")
                 out.append(bid)
     return out
+
+
+def build_replication(out_dir: Path = ROOT, key_dir: Path | None = None) -> list[str]:
+    """Replication of the headline (card view, query allowed vs forced A/R) on six fresh contents."""
+    key_dir = key_dir or out_dir / "keys"
+    out = []
+    for c in range(6):
+        items = make_content(50000 + c, 3)
+        content_id = f"r03c{c}"
+        (key_dir / f"{content_id}.json").write_text(json.dumps([asdict(i) for i in items], indent=1),
+                                                   encoding="utf-8", newline="\n")
+        bid = f"{content_id}-terse-card"
+        (out_dir / "batches" / f"{bid}.md").write_text(render_batch(items, "terse", "card"), encoding="utf-8",
+                                                      newline="\n")
+        out.append(bid)
+        bid = f"{content_id}-terse-forced"
+        head = FORCED_HEADER.format(display_note=DISPLAY_NOTE["card"], n=len(items))
+        (out_dir / "batches" / f"{bid}.md").write_text(
+            head + "\n" + "\n\n".join(render_card(i, "terse", "card") for i in items) + "\n",
+            encoding="utf-8", newline="\n")
+        out.append(bid)
+    return out
