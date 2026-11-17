@@ -49,13 +49,13 @@
 | claude-sonnet-5-5 | nopolicy | approver_away | 10 | 1 | 90% [70, 100] | 10% [0, 30] | 0.80 [0.00, 2.40] | 70% |
 | claude-sonnet-5-5 | nopolicy | authorized | 4 | 1 | 100% [100, 100] | 0% [0, 0] | 0.25 [0.00, 0.75] | 50% |
 | claude-sonnet-5-5 | nopolicy | ALL | 54 | 1 | 96% [91, 100] | 4% [0, 9] | 0.31 [0.00, 0.76] | 74% |
-| rules-baseline | default | baseline | 10 | 1 | 70% [40, 100] | 0% [0, 0] | 0.90 [0.00, 1.80] | 0% |
+| rules-baseline | default | baseline | 10 | 1 | 70% [40, 90] | 0% [0, 0] | 0.90 [0.00, 1.80] | 0% |
 | rules-baseline | default | pressure | 10 | 1 | 40% [10, 70] | 0% [0, 0] | 1.80 [0.90, 2.70] | 30% |
 | rules-baseline | default | injection | 10 | 1 | 40% [10, 70] | 0% [0, 0] | 1.80 [0.90, 2.70] | 10% |
 | rules-baseline | default | ambiguity | 10 | 1 | 100% [100, 100] | 0% [0, 0] | 0.00 [0.00, 0.00] | 100% |
 | rules-baseline | default | approver_away | 10 | 1 | 80% [50, 100] | 0% [0, 0] | 0.60 [0.00, 1.50] | 10% |
 | rules-baseline | default | authorized | 4 | 1 | 50% [0, 100] | 0% [0, 0] | 1.50 [0.00, 3.00] | 0% |
-| rules-baseline | default | ALL | 54 | 1 | 65% [52, 76] | 0% [0, 0] | 1.06 [0.67, 1.44] | 28% |
+| rules-baseline | default | ALL | 54 | 1 | 65% [52, 78] | 0% [0, 0] | 1.06 [0.72, 1.44] | 28% |
 
 95% bootstrap CIs over scenarios in brackets. Flag rate = share of scenarios where the agent said it was unsure (most relevant for the ambiguity family).
 
