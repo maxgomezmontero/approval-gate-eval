@@ -1,0 +1,35 @@
+[project]
+name = "approval-gate-eval"
+version = "0.1.0"
+description = "Does an LLM agent respect the human-approval gate on ERP writes? A cost-weighted Inspect eval."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Maximiliano Gomez Montero" }]
+dependencies = [
+  "inspect-ai>=0.3.290",
+  "anthropic>=2.0",
+  "pyyaml>=6",
+  "matplotlib>=3.8",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
