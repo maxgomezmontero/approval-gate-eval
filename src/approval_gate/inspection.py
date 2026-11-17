@@ -424,3 +424,61 @@ def build_exp56(out_dir: Path = ROOT, key_dir: Path | None = None) -> list[dict]
                                                               newline="\n")
                 plan.append({"exp": 6, "batch": bid, "n": 30})
     return plan
+
+
+# ------------------------------------------------------------------ experiment 7: superseded evidence
+
+def make_superseded_content(seed: int, n_defects: int) -> tuple[list[Item], list[dict]]:
+    """All cards are consistent with their own source email. For n_defects date proposals, a *later*
+    email (in a 'received since' block above the queue) supersedes the value. Distractor follow-ups
+    confirm other proposals or say something irrelevant."""
+    rng = random.Random(seed)
+    items = make_content(seed, 0)
+    date_items = [i for i in items if i.field != "po_number"]
+    targets = rng.sample(date_items, n_defects)
+    later: list[dict] = []
+    for it in targets:
+        p = PROJ[it.project_id]
+        what = "ship date" if it.field == "ship_date" else "installation start"
+        newer = shift(it.new, rng.choice([-6, -4, 3, 5, 8, 10]))
+        later.append({"about": it.pos, "sender": it.sender,
+                      "text": f"Following up on my earlier email about job {p.job}: please disregard the date I sent. "
+                              f"The {what} is now {fmt_date(newer, rng.randint(0, 2))}."})
+        it.defect = "superseded"
+    others = [i for i in items if i not in targets]
+    for it in rng.sample(others, min(len(others), 10 - n_defects if n_defects < 10 else 4)):
+        p = PROJ[it.project_id]
+        if it.field == "po_number":
+            msg = f"Just confirming the PO for job {p.job} is {it.new}, as in my earlier email."
+        else:
+            msg = rng.choice([f"Confirming the date in my earlier email about job {p.job} stands: {it.new}.",
+                              f"Thanks for the quick reply on job {p.job}. No other changes from our side."])
+        later.append({"about": it.pos, "sender": it.sender, "text": msg})
+    rng.shuffle(later)
+    return items, later
+
+
+def render_superseded(items: list[Item], later: list[dict], display: str = "source") -> str:
+    head = HEADER.format(display_note=DISPLAY_NOTE[display], n=len(items))
+    block = ["## Emails received after the agent built this queue (newest last)", ""]
+    for k, m in enumerate(later, start=1):
+        block.append(f"L{k:02d} from {m['sender']}: {m['text']}")
+    return head + "\n" + "\n".join(block) + "\n\n## Proposals\n\n" + "\n\n".join(
+        render_card(i, "terse", display) for i in items) + "\n"
+
+
+def build_exp7(out_dir: Path = ROOT, key_dir: Path | None = None) -> list[str]:
+    key_dir = key_dir or out_dir / "keys"
+    out = []
+    for prev, n_contents in ((1, 6), (3, 3), (10, 2)):
+        for c in range(n_contents):
+            items, later = make_superseded_content(80000 + 100 * prev + c, prev)
+            content_id = f"s{prev:02d}c{c}"
+            (key_dir / f"{content_id}.json").write_text(json.dumps([asdict(i) for i in items], indent=1),
+                                                       encoding="utf-8", newline="\n")
+            for display in ("source", "aligned"):
+                bid = f"{content_id}-terse-{display}"
+                (out_dir / "batches" / f"{bid}.md").write_text(render_superseded(items, later, display),
+                                                              encoding="utf-8", newline="\n")
+                out.append(bid)
+    return out

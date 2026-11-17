@@ -109,3 +109,29 @@ rejected), d' and c with log-linear correction, logistic regression on miss, clu
   common (haiku-low 19% -> 0%, haiku 21% -> 13%); needs a cue-controlled check on the never-defective items.
 - Launched Exp 5 (queue length 30/90/150 at ~3% prevalence, source shown, 2 reps) and Exp 6 (forced A/R
   with no evidence attached): 160 runs.
+
+### 00:45 — checkpoint: skeptical re-read, Exp 5/6 results, next step
+Results since 23:05:
+- Exp 5 (queue length, source shown): 0/216 defects approved at 30, 90 and 150 items (4 reviewers x 2 reps).
+  No vigilance decrement up to 150 items. False alarms on clean items *fall* with length (Haiku 16% -> 0.2%),
+  but the 30-item contents differ from the long ones, so treat that as content, not length.
+- Exp 6 (forced A/R, no evidence, same contents as the card-only condition): removing the "query" option
+  turns the cautious reviewers into approvers. Good items approved: Opus 19% (with Q) -> 89% (forced),
+  Haiku 9% -> 49%; defects whose problem is not visible from the card: approved 55-74% by every reviewer.
+  Haiku is bimodal: 10/22 runs rejected all 30 items, the rest approved most. Defects with a visible cue
+  (subject shows another job or field) were still caught 96-100%.
+
+Skeptical review (what a referee would attack, and what I do about it):
+1. Ceiling. With the evidence attached, every defect is verifiable from one short email. Real defects often
+   need integrating several messages. -> Exp 7 below makes the evidence cross-item (a later email
+   supersedes the card's source), the most common real failure I see, and re-tests prevalence there.
+2. Reviewers are Claude Code subagents (harness system prompt, tool access, "all data fictional" header).
+   Not the bare models; behaviour may differ via API or with real stakes. -> stated as a limitation; the
+   claims are about these agents as reviewers.
+3. Confounds of content with prevalence (Exp 1-3). -> Exp 4 is the within-item test; the paper leads with it.
+4. Many comparisons. -> report effect sizes with cluster-bootstrap CIs; call small effects exploratory; lead
+   only with effects that are large and replicated (format 17%->0%; Q vs forced; evidence vs card).
+5. "False alarms" partly justified (ambiguity cues). -> report clean-item FA separately.
+6. One model family, one author who also wrote the stimuli with the same model family. -> limitation.
+7. Q costs reviewer time; counting Q as a false alarm is a choice. -> report Q and R separately.
+Next: Exp 7 (superseded evidence), then write PAPER.md while it runs.
