@@ -14,7 +14,7 @@ business systems. The reviewer is increasingly another model: a "trusted monitor
 engineering has studied inspectors for decades, with tools that AI oversight rarely uses: signal
 detection theory, the prevalence effect, vigilance, measurement-system analysis (Gage R&R),
 mistake-proofing (poka-yoke) and acceptance sampling. We apply them to LLM reviewers of an agent's ERP
-change proposals in a synthetic industrial back office. Across 1,284 review runs (36,960 item decisions)
+change proposals in a synthetic industrial back office. Across 1,124 review runs (38,040 item decisions)
 by four Claude reviewers (Haiku at low and default effort, Sonnet, Opus) run as Claude Code subagents, we
 find:
 (1) **With the source evidence attached, the reviewers caught every defective proposal**: 0 of 1,432
@@ -32,7 +32,8 @@ defects it could not see.
 (Haiku at low effort: 12.2% to 0.2% of clean correct items held back) at no cost in detection.
 (5) Reviewer models agree poorly with each other where the evidence is missing (Cohen's κ 0.38–0.45 for
 pairs involving Sonnet), so the choice of monitor model, not its detection ability, decides what passes.
-EXP7_ABSTRACT_PLACEHOLDER
+(6) When the deciding evidence was a *later* email superseding the card's source, the reviewers still
+caught 553 of 560 superseded proposals; the misses came almost entirely from Haiku at low effort (4.3%).
 We argue that approval gates for agents should be engineered like inspection stations: attach and align
 the evidence, give the reviewer a "hold" option, and run a measurement-system analysis on the monitor
 before trusting its error rate.
@@ -137,6 +138,8 @@ self-corrections, tentative requests) and date formats. Everything is seeded and
 | 6 | forced A/R, no evidence | 11 contents × 2 styles × 4 | 88 |
 | 7 | superseded evidence | a later email overrides the card's source; 11 contents × 2 displays × 4 × 2 reps | 176 |
 
+Total: 1,124 review runs and 38,040 item decisions, plus a 4-run pilot.
+
 ### 3.4 Measures and analysis
 
 Per item: approve / reject / query. A **miss** is an approved defect; a **false alarm** is a correct
@@ -217,7 +220,30 @@ Disagreement concentrates where evidence is missing: that is where the choice of
 
 ### 4.6 Superseded evidence (Exp 7)
 
-EXP7_RESULTS_PLACEHOLDER
+![Superseded](inspection/figures/fig4_superseded.png)
+
+Here every card is consistent with its own source email, but a block of emails received *after* the
+agent built the queue supersedes the value for 1, 3 or 10 of the 30 proposals ("please disregard the date
+I sent; the ship date is now ..."), mixed with confirmations and thank-you notes. The evidence alignment
+in this experiment points to the card's own, now stale, source: a test of whether a poka-yoke display can
+create false reassurance.
+
+| reviewer | superseded approved, source | superseded approved, aligned | false alarms, source | false alarms, aligned |
+|---|---|---|---|---|
+| haiku-low | 4.3% | 4.3% | 17.3% | 2.4% |
+| haiku | 0.0% | 0.0% | 13.1% | 3.6% |
+| sonnet | 0.0% | 1.4% | 17.8% | 8.3% |
+| opus | 0.0% | 0.0% | 3.1% | 2.7% |
+
+*n = 70 superseded proposals per cell (two runs per queue).*
+
+Integrating evidence across messages produced the only misses in any evidence condition, and only from
+the cheapest reviewer (6 of 140) plus one Sonnet run. For Haiku at low effort, 3 of its 6 misses were in the
+queues with a single superseded item (3 of 24 judgments, 12.5%), versus 0 of 36 at 10% prevalence and 3 of
+80 at 33%: a hint of a prevalence effect at the edge of the reviewer's capability, too small to claim.
+The alignment to the stale source did not create false reassurance (misses unchanged), and it again
+roughly halved false alarms or better. With the later-email block present, Sonnet's false alarms rose to
+17.8%: the extra context made it suspicious of correct proposals for the same jobs and others alike.
 
 ### 4.7 What it means for escapes
 
@@ -248,8 +274,9 @@ approved it?]
 
 **Why no prevalence effect?** Human prevalence effects arise from early quitting in search and from a
 criterion that adapts to expected rates. Our reviewers read each card in full and judge it against its own
-email; when the defect is verifiable from that email, there is nothing to quit early on. Whether a
-prevalence effect appears when verification is costly (Exp 7) is the more realistic question.
+email; when the defect is verifiable from that email, there is nothing to quit early on. When verification
+required combining messages (Exp 7), the cheapest reviewer started to miss, and its misses leaned toward
+the rare-defect queues. A larger study of that regime is the natural next step.
 
 ## 6. Limitations
 
