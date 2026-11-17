@@ -19,25 +19,42 @@ from statistics import NormalDist, mean
 import numpy as np
 
 Z = NormalDist().inv_cdf
+OPERATORS = ("haiku-low", "haiku", "sonnet", "opus")
 
 
 # ------------------------------------------------------------------ loading
 
+def parse_results(text: str) -> list[dict]:
+    """Workflow output lines 'batch|operator|rep|decisions' -> run records with factors."""
+    out = []
+    for line in text.strip().splitlines():
+        if not line.strip():
+            continue
+        batch, op, rep, dec = line.strip().split("|")
+        content, style, display = batch.split("-")
+        out.append({"batch": batch, "content": content, "prevalence": int(content[1:3]), "style": style,
+                    "display": display, "operator": op, "model": op.split("-")[0], "rep": int(rep),
+                    "decisions": None if dec in ("NULL", "BAD") else dec})
+    return out
+
+
 def item_rows(results: list[dict], key_dir: Path) -> list[dict]:
+    """One row per (run, item). caught = not approved (R or Q); for good items that is a false alarm."""
     keys: dict[str, list[dict]] = {}
     rows = []
     for r in results:
         d = r.get("decisions")
-        if not d or len(d) != 30 or set(d) - {"A", "R"}:
+        if not d or d in ("BAD", "NULL") or len(d) != 30 or set(d) - {"A", "R", "Q"}:
             continue
         items = keys.setdefault(r["content"], json.loads((key_dir / f"{r['content']}.json").read_text(encoding="utf-8")))
         for it in items:
             dec = d[it["pos"] - 1]
             rows.append({
-                "run": f"{r['batch']}|{r['model']}|{r['rep']}", "batch": r["batch"], "content": r["content"],
-                "prevalence": r["prevalence"], "style": r["style"], "display": r["display"], "model": r["model"],
-                "rep": r["rep"], "pos": it["pos"], "defect": it["defect"] or "", "signal": int(it["defect"] is not None),
-                "reject": int(dec == "R"),
+                "run": f"{r['batch']}|{r['operator']}|{r['rep']}", "batch": r["batch"], "content": r["content"],
+                "prevalence": r["prevalence"], "style": r["style"], "display": r["display"],
+                "operator": r["operator"], "model": r["model"], "rep": r["rep"], "pos": it["pos"],
+                "defect": it["defect"] or "", "field": it["field"], "signal": int(it["defect"] is not None),
+                "decision": dec, "reject": int(dec != "A"), "query": int(dec == "Q"), "hard_reject": int(dec == "R"),
             })
     return rows
 
@@ -157,10 +174,10 @@ def agreement(rows: list[dict]) -> dict:
     by_run: dict[tuple, dict[int, int]] = defaultdict(dict)
     truth: dict[tuple, int] = {}
     for r in rows:
-        by_run[(r["batch"], r["model"], r["rep"])][r["pos"]] = r["reject"]
+        by_run[(r["batch"], r["operator"], r["rep"])][r["pos"]] = r["reject"]
         truth[(r["batch"], r["pos"])] = r["signal"]
     out = {}
-    for model in ("haiku", "sonnet"):  # repeatability: rep 0 vs rep 1, same model, same batch
+    for model in OPERATORS:  # repeatability: rep 0 vs rep 1, same model, same batch
         a, b = [], []
         for (batch, m, rep), d in by_run.items():
             if m == model and rep == 0 and (batch, m, 1) in by_run:
@@ -172,18 +189,18 @@ def agreement(rows: list[dict]) -> dict:
             out[f"repeatability_kappa_{model}"] = kappa(a, b)
             out[f"repeatability_agree_{model}"] = mean(int(x == y) for x, y in zip(a, b, strict=True))
             out[f"repeatability_n_{model}"] = len(a)
-    a, b = [], []  # reproducibility: haiku rep0 vs sonnet rep0
-    for (batch, m, rep), d in by_run.items():
-        if m == "haiku" and rep == 0 and (batch, "sonnet", 0) in by_run:
-            d2 = by_run[(batch, "sonnet", 0)]
-            for pos in d:
-                a.append(d[pos])
-                b.append(d2[pos])
-    if a:
-        out["reproducibility_kappa"] = kappa(a, b)
-        out["reproducibility_agree"] = mean(int(x == y) for x, y in zip(a, b, strict=True))
-        out["reproducibility_n"] = len(a)
-    for model in ("haiku", "sonnet"):  # vs standard
+    for i, m1 in enumerate(OPERATORS):  # reproducibility: every pair of reviewers, rep 0, same batch
+        for m2 in OPERATORS[i + 1:]:
+            a, b = [], []
+            for (batch, m, rep), d in by_run.items():
+                if m == m1 and rep == 0 and (batch, m2, 0) in by_run:
+                    d2 = by_run[(batch, m2, 0)]
+                    for pos in d:
+                        a.append(d[pos])
+                        b.append(d2[pos])
+            if a:
+                out[f"reproducibility_kappa_{m1}_vs_{m2}"] = kappa(a, b)
+    for model in OPERATORS:  # vs standard
         a = [truth[(batch, pos)] for (batch, m, rep), d in by_run.items() if m == model for pos in d]
         b = [d[pos] for (batch, m, rep), d in by_run.items() if m == model for pos in d]
         if a:

@@ -43,3 +43,28 @@ Outcome per item: approve / reject. Analysis: hit rate (defect rejected), false-
 rejected), d' and c with log-linear correction, logistic regression on miss, cluster bootstrap by batch.
 
 ## Log
+
+### 21:55 — pilot (4 runs) and redesign to v2
+- With the source email inline, Haiku and Sonnet caught 10/10 defects with 0 false alarms (p10, 30 items).
+  LLM reviewers do not tire at 30 items; inline evidence alone produces a ceiling.
+- Artefact found: random items repeated (project, field) inside a batch, so in the card-only view Haiku
+  rejected proposals for being *inconsistent with each other*, not with the source. Fixed: each batch now
+  has exactly one proposal per (project, field) slot (10 projects x 3 fields = 30).
+- Added a third decision, Q = query ("can't tell, show me more"). In the card-only view this measures the
+  thing we care about: does the reviewer approve what it cannot verify (rubber-stamping)?
+- Added inspection effort as a factor via operators: haiku at low effort (fast monitor), haiku, sonnet.
+- Main run: 252 reviewer runs = 11 contents x 2 styles x 3 displays x 3 operators (+ second rep at p=3
+  for Gage R&R). Run order interleaved by a fixed shuffle.
+- Python file `inspection.py` was lost once to a failed in-place patch (untracked); rewritten and
+  committed immediately.
+
+### 22:20 — main run v2 (252 runs, string output) and a measurement-system finding
+- Haiku (both efforts) queried ~98% of card-only items it could not verify; Sonnet approved 44-96% of them.
+  With evidence shown, Haiku missed 1-3% of defects, Sonnet 15-19%.
+- Before trusting "Sonnet misses more", checked the output channel: in 8/56 evidence runs Sonnet's
+  30-character A/R/Q string fits the answer key better after shifting by one or two positions (Haiku 2-4/56).
+  Part of Sonnet's "misses" are transcription slips, not judgement. That is a measurement-system (MSA)
+  error and it is itself a finding for anyone who uses LLM monitors with compact output formats.
+- Decision: keep v2 as the "string format" measurement and re-run the full design as v3 with item-numbered,
+  validated output (n, d) per proposal, and add Opus as a fourth reviewer: 336 runs.
+- v2 report saved under inspection/results/v2_string_format/.
