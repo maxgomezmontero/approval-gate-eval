@@ -21,8 +21,9 @@ The repository holds two studies:
 | **Study 2: does the reviewer catch what's wrong?** | quality-inspection methods (signal detection, prevalence, attribute agreement, acceptance sampling) applied to LLM reviewers of proposal queues; 1,880 review runs by Claude Code subagents | [PAPER.md](PAPER.md), [inspection/](inspection/) |
 
 **Study 2 in four lines.** With the source email attached, four Claude reviewers approved almost none of the
-defective proposals (1 of 2,072 judgments on 122 unique defects, bounds in the paper). Without it they
-could not discriminate (d′ ≈ 0); whether they approved what they couldn't verify depended on the model
+defective proposals (1 of 2,072 judgments on 122 unique defects; 9 of 840 when a later email superseded
+the source; bounds in the paper). Without it they approved hidden defects about as often as correct
+items; whether they approved what they couldn't verify depended on the model
 and on whether the queue let them answer "query": removing that option moved Haiku and Opus from holding
 most items to approving most of them. Asking for a 30-letter string instead of item-by-item answers raised
 Sonnet's measured miss rate from 0% to 12% on the same items. See [PAPER.md](PAPER.md).

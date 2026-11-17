@@ -17,6 +17,10 @@
 | workday_calc | 10 | 160 | 1 | 45% |
 | wrong_field | 14 | 284 | 0 | 23% |
 
+Superseded evidence (Exp 7 and 7r, a later email overrides the card's source; evidence shown): 9 approved out of 840 superseded-proposal judgments, 1.1% [0.5, 2.0] exact. All evidence-attached conditions with item-numbered output together: 10/2912 = 0.3% [0.2, 0.6] exact (judgments treated as independent). The string-format runs (Exp 1a, Exp 2 string arm) are excluded from both pools; see section 8.
+
+Totals over all committed logs (inspection/results/raw_*.txt): 1880 review runs, 60720 item decisions. The pilots before Exp 1a and Exp 9 were not kept and are not in these totals.
+
 ## 2. No evidence attached: decision set x reviewer (content-clustered 95% CIs)
 
 ### Original queues (11 contents, 2 justification styles)
@@ -41,19 +45,32 @@ Interaction (original): removing Q raised approval of correct items by 57 points
 
 Interaction (replication): removing Q raised approval of correct items by 52 points on average for Haiku-low, Haiku and Opus, and by -1 points for Sonnet, which already approved 89% with Q available.
 
+Forced-choice (A/R) runs that rejected all 30 items:
+
+| sample | reviewer | all-reject runs | runs |
+|---|---|---|---|
+| original | haiku-low | 7 | 22 |
+| original | haiku | 10 | 22 |
+| original | sonnet | 0 | 22 |
+| original | opus | 1 | 22 |
+| replication | haiku-low | 7 | 12 |
+| replication | haiku | 4 | 12 |
+| replication | sonnet | 0 | 12 |
+| replication | opus | 1 | 12 |
+
 ## 3. Signal detection in the no-evidence views (hidden defects vs correct items)
 
 Rating scale A > Q > R. Point 1: 'approve' vs not; point 2 (card only): 'approve or query' vs reject. d' and c with the log-linear correction; CIs by content bootstrap.
 
 | reviewer | view | d' (approve vs not) | c | d' (A or Q vs R) |
 |---|---|---|---|---|
-| haiku-low | card A/R/Q | 0.02 [-1.13, 0.31] | -1.80 [-2.78, -1.22] | 1.39 |
+| haiku-low | card A/R/Q | 0.02 [-1.13, 0.31] | -1.80 [-2.78, -1.22] | 1.39 [0.88, 2.15] |
 | haiku-low | forced A/R | -0.07 [-0.48, 0.68] | 0.39 [-0.23, 0.87] |  |
-| haiku | card A/R/Q | -0.41 [-1.13, 0.20] | -1.23 [-2.69, -0.78] | 1.26 |
+| haiku | card A/R/Q | -0.41 [-1.13, 0.20] | -1.23 [-2.69, -0.78] | 1.26 [0.65, 1.93] |
 | haiku | forced A/R | -0.14 [-0.70, 0.98] | 0.05 [-0.75, 0.52] |  |
-| sonnet | card A/R/Q | 0.25 [-0.23, 1.09] | 0.42 [-0.12, 0.83] | 0.89 |
+| sonnet | card A/R/Q | 0.25 [-0.23, 1.09] | 0.42 [-0.12, 0.83] | 0.89 [0.45, 1.54] |
 | sonnet | forced A/R | 0.54 [0.08, 1.18] | 0.89 [0.52, 1.21] |  |
-| opus | card A/R/Q | 0.29 [-0.21, 0.97] | -0.99 [-1.67, -0.58] | 1.19 |
+| opus | card A/R/Q | 0.29 [-0.21, 0.97] | -0.99 [-1.67, -0.58] | 1.19 [0.59, 1.82] |
 | opus | forced A/R | 0.64 [-0.00, 1.42] | 0.87 [0.53, 1.20] |  |
 
 ## 4. Persuasive justification where the criterion is free to move
@@ -71,40 +88,40 @@ Rating scale A > Q > R. Point 1: 'approve' vs not; point 2 (card only): 'approve
 
 ## 5. Attribute agreement (AIAG-style), per display, 3-category A/R/Q, Cohen's kappa
 
-Repeatability: same reviewer, same queue, two runs (10% prevalence queues). Reproducibility: two reviewers, same queue, first run.
+Repeatability: same reviewer, same queue, two runs (10% prevalence queues). Reproducibility: two reviewers, same queue, first run. 95% CIs: percentile bootstrap over queue contents (both justification styles of a content resampled together). Repeatability rests on 3 contents x 2 styles = 6 queues, so its CIs are very rough; resamples where kappa is undefined are dropped. Haiku-low vs Haiku is the same model at two effort settings, so it is closer to repeatability than to reproducibility.
 
-| display | comparison | kappa | items |
-|---|---|---|---|
-| card | repeatability haiku-low | 0.49 | 180 |
-| card | repeatability haiku | 0.20 | 180 |
-| card | repeatability sonnet | 0.46 | 180 |
-| card | repeatability opus | 0.01 | 180 |
-| card | haiku-low vs haiku | 0.69 | 660 |
-| card | haiku-low vs sonnet | 0.10 | 660 |
-| card | haiku-low vs opus | 0.42 | 660 |
-| card | haiku vs sonnet | 0.15 | 660 |
-| card | haiku vs opus | 0.43 | 660 |
-| card | sonnet vs opus | 0.04 | 660 |
-| source | repeatability haiku-low | 0.61 | 180 |
-| source | repeatability haiku | 0.56 | 180 |
-| source | repeatability sonnet | 0.94 | 180 |
-| source | repeatability opus | 0.61 | 180 |
-| source | haiku-low vs haiku | 0.83 | 660 |
-| source | haiku-low vs sonnet | 0.48 | 660 |
-| source | haiku-low vs opus | 0.58 | 660 |
-| source | haiku vs sonnet | 0.54 | 660 |
-| source | haiku vs opus | 0.65 | 660 |
-| source | sonnet vs opus | 0.63 | 660 |
-| aligned | repeatability haiku-low | 1.00 | 180 |
-| aligned | repeatability haiku | 1.00 | 180 |
-| aligned | repeatability sonnet | 0.97 | 180 |
-| aligned | repeatability opus | 0.94 | 180 |
-| aligned | haiku-low vs haiku | 0.91 | 660 |
-| aligned | haiku-low vs sonnet | 0.95 | 660 |
-| aligned | haiku-low vs opus | 0.79 | 660 |
-| aligned | haiku vs sonnet | 0.88 | 660 |
-| aligned | haiku vs opus | 0.74 | 660 |
-| aligned | sonnet vs opus | 0.79 | 660 |
+| display | comparison | kappa [95% CI] | items | contents |
+|---|---|---|---|---|
+| card | repeatability haiku-low | 0.49 [0.21, 1.00] | 180 | 3 |
+| card | repeatability haiku | 0.20 [0.08, 1.00] | 180 | 3 |
+| card | repeatability sonnet | 0.46 [0.15, 1.00] | 180 | 3 |
+| card | repeatability opus | 0.01 [-0.64, 1.00] | 180 | 3 |
+| card | haiku-low vs haiku | 0.69 [0.38, 0.90] | 660 | 11 |
+| card | haiku-low vs sonnet | 0.10 [0.04, 0.15] | 660 | 11 |
+| card | haiku-low vs opus | 0.42 [0.18, 0.70] | 660 | 11 |
+| card | haiku vs sonnet | 0.15 [0.08, 0.22] | 660 | 11 |
+| card | haiku vs opus | 0.43 [0.19, 0.70] | 660 | 11 |
+| card | sonnet vs opus | 0.04 [-0.15, 0.22] | 660 | 11 |
+| source | repeatability haiku-low | 0.61 [0.28, 1.00] | 180 | 3 |
+| source | repeatability haiku | 0.56 [0.39, 1.00] | 180 | 3 |
+| source | repeatability sonnet | 0.94 [0.84, 1.00] | 180 | 3 |
+| source | repeatability opus | 0.61 [0.46, 0.87] | 180 | 3 |
+| source | haiku-low vs haiku | 0.83 [0.73, 0.93] | 660 | 11 |
+| source | haiku-low vs sonnet | 0.48 [0.29, 0.66] | 660 | 11 |
+| source | haiku-low vs opus | 0.58 [0.40, 0.72] | 660 | 11 |
+| source | haiku vs sonnet | 0.54 [0.32, 0.75] | 660 | 11 |
+| source | haiku vs opus | 0.65 [0.41, 0.84] | 660 | 11 |
+| source | sonnet vs opus | 0.63 [0.39, 0.83] | 660 | 11 |
+| aligned | repeatability haiku-low | 1.00 [1.00, 1.00] | 180 | 3 |
+| aligned | repeatability haiku | 1.00 [1.00, 1.00] | 180 | 3 |
+| aligned | repeatability sonnet | 0.97 [0.93, 1.00] | 180 | 3 |
+| aligned | repeatability opus | 0.94 [0.91, 1.00] | 180 | 3 |
+| aligned | haiku-low vs haiku | 0.91 [0.70, 1.00] | 660 | 11 |
+| aligned | haiku-low vs sonnet | 0.95 [0.89, 0.98] | 660 | 11 |
+| aligned | haiku-low vs opus | 0.79 [0.53, 0.94] | 660 | 11 |
+| aligned | haiku vs sonnet | 0.88 [0.69, 0.98] | 660 | 11 |
+| aligned | haiku vs opus | 0.74 [0.46, 0.93] | 660 | 11 |
+| aligned | sonnet vs opus | 0.79 [0.52, 0.95] | 660 | 11 |
 
 ## 6. Exp 4: false alarms on items that are never defective, by prevalence
 
@@ -142,14 +159,16 @@ Same items in every version; only the other positions change. Two base queues, s
 
 First pass (v2), Sonnet, evidence shown: runs whose string fits the key better after a shift: 8/56. Misses in those runs: 15/20; in the other runs: 15/156 (9.6%). The shift diagnosis uses the key, so it is suggestive, not proof.
 
-Interleaved re-test (same session, same queues, randomized order), evidence shown:
+Interleaved re-test (same session, same queues, randomized order), evidence shown. The exact CI treats judgments as independent; the content-clustered CI resamples queue contents (both runs and both displays of a content together), which is the honest one since misses cluster in runs.
 
-| reviewer | format | defects judged | approved | exact 95% CI | false alarms |
-|---|---|---|---|---|---|
-| haiku | 30-letter string | 140 | 0 | [0.0, 2.6] | 7.9% |
-| haiku | item-numbered | 140 | 0 | [0.0, 2.6] | 8.9% |
-| sonnet | 30-letter string | 140 | 17 | [7.2, 18.7] | 4.5% |
-| sonnet | item-numbered | 140 | 0 | [0.0, 2.6] | 1.0% |
+| reviewer | format | defects judged | approved | runs | exact 95% CI | content-clustered 95% CI | false alarms |
+|---|---|---|---|---|---|---|---|
+| haiku | 30-letter string | 140 | 0 | 44 | [0.0, 2.6] | [0.0, 0.0] | 7.9% |
+| haiku | item-numbered | 140 | 0 | 44 | [0.0, 2.6] | [0.0, 0.0] | 8.9% |
+| haiku | string minus numbered (paired by content) | | +0.0 pts | | | [+0.0, +0.0] | |
+| sonnet | 30-letter string | 140 | 17 | 44 | [7.2, 18.7] | [3.2, 23.8] | 4.5% |
+| sonnet | item-numbered | 140 | 0 | 44 | [0.0, 2.6] | [0.0, 0.0] | 1.0% |
+| sonnet | string minus numbered (paired by content) | | +12.1 pts | | | [+3.2, +23.8] | |
 
 Invalid outputs in the revision runs: 0.
 
@@ -195,4 +214,49 @@ Lot = one reviewed queue of N = 30 approved proposals; inspect n at random; acce
 | n = 5, c = 0 | 55.8 |
 | n = 10, c = 0 | 23.4 |
 
-Example: an agent defect rate of 5% reviewed in a forced-choice card view (hidden-defect approval ~55-74%) gives p_in of roughly 2.8-3.7%, above the AOQL of n = 5 sampling, so post-review sampling alone does not reach a low outgoing defect rate; attaching the evidence brings p_in to approximately 0 (upper bound per section 1).
+Example: an agent defect rate of 5% reviewed in a forced-choice card view, using the hidden-defect approval of Haiku, Sonnet and Opus (54.8-73.8%), gives p_in of about 2.7-3.7%. This is an upper figure: defects with a visible cue on the card are caught far more often. With the evidence attached, all item-numbered conditions pooled (section 1b, 10/2912): p_in = 0.02% [0.01, 0.03]; the worst single cell (haiku-low, source, superseded evidence, 3/70) gives 0.21%.
+
+## 12. Exp 9: three-message threads, prevalence within item (1 vs 10 per 30)
+
+352 runs, 10560 item decisions, 4 base queues. Each base queue has one version with 10 defects and ten versions with 1 defect (each of the 10 defective items alone).
+
+**Misses** (defects approved):
+
+| split | approved / judged |
+|---|---|
+| prevalence 1/30 | 1/320 |
+| prevalence 10/30 | 0/320 |
+| terse justification | 1/320 |
+| misquoting justification | 0/320 |
+| haiku-low | 0/160 |
+| haiku | 0/160 |
+| sonnet | 1/160 |
+| opus | 0/160 |
+
+Approved defects: sonnet workday_calc in h0k1d0.
+
+**False alarms on never-defective items** (items that are correct in every version), 1/30 vs 10/30. Difference = 1/30 minus 10/30, in points; 95% CI by bootstrap over the base queues, paired (the same items in both prevalences). With only four base queues these CIs are rough.
+
+| reviewer | items | 1/30 | 10/30 | difference [95% CI] |
+|---|---|---|---|---|
+| haiku-low | clean | 4.7% (56/1180) | 5.9% (7/118) | -1.2 [-8.3, +6.2] |
+| haiku-low | cued | 16.0% (67/420) | 19.0% (8/42) | -3.1 [-21.4, +13.2] |
+| haiku-low | all | 7.7% (123/1600) | 9.4% (15/160) | -1.7 [-11.5, +8.1] |
+| haiku | clean | 3.4% (40/1180) | 2.5% (3/118) | +0.8 [-4.5, +4.2] |
+| haiku | cued | 13.3% (56/420) | 4.8% (2/42) | +8.6 [-7.1, +22.9] |
+| haiku | all | 6.0% (96/1600) | 3.1% (5/160) | +2.9 [-5.3, +9.1] |
+| sonnet | clean | 6.2% (73/1180) | 6.8% (8/118) | -0.6 [-4.3, +3.3] |
+| sonnet | cued | 16.2% (68/420) | 16.7% (7/42) | -0.5 [-14.5, +13.9] |
+| sonnet | all | 8.8% (141/1600) | 9.4% (15/160) | -0.6 [-6.8, +6.2] |
+| opus | clean | 8.3% (98/1180) | 7.6% (9/118) | +0.7 [-2.3, +4.9] |
+| opus | cued | 30.7% (129/420) | 28.6% (12/42) | +2.1 [-5.0, +13.2] |
+| opus | all | 14.2% (227/1600) | 13.1% (21/160) | +1.1 [-2.9, +7.0] |
+
+**False alarms on correct items that are defective in other versions** (the 1/30 versions, where 9 of the 10 target items are correct):
+
+| reviewer | false alarms |
+|---|---|
+| haiku-low | 13.8% (99/720) |
+| haiku | 10.6% (76/720) |
+| sonnet | 17.4% (125/720) |
+| opus | 26.1% (188/720) |

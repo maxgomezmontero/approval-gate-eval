@@ -144,6 +144,30 @@ def main() -> None:
     J["evidence"] = {"judgments": len(ev), "approved": k, "unique_items": len(uniq), "unique_ever_approved": k_items,
                      "ub_judgment": hi_j, "ub_item": hi_i}
 
+    # 1b. the other evidence-attached condition: superseded evidence (Exp 7 and 7r), item-numbered output
+    sup = [r for r in x7 + [r for r in rev if r["style"] == "later"] if r["signal"]]
+    k_sup = sum(1 - r["reject"] for r in sup)
+    lo_s, hi_s = clopper_pearson(k_sup, len(sup))
+    k_all, n_all = k + k_sup, len(ev) + len(sup)
+    lo_a, hi_a = clopper_pearson(k_all, n_all)
+    out.append(f"\nSuperseded evidence (Exp 7 and 7r, a later email overrides the card's source; evidence shown): "
+               f"{k_sup} approved out of {len(sup)} superseded-proposal judgments, {fmt(k_sup / len(sup), lo_s, hi_s)} exact. "
+               f"All evidence-attached conditions with item-numbered output together: {k_all}/{n_all} = "
+               f"{fmt(k_all / n_all, lo_a, hi_a)} exact (judgments treated as independent). The string-format runs "
+               "(Exp 1a, Exp 2 string arm) are excluded from both pools; see section 8.\n")
+    J["evidence_superseded"] = {"judgments": len(sup), "approved": k_sup, "ci": (lo_s, hi_s)}
+    J["evidence_all_numbered"] = {"judgments": n_all, "approved": k_all, "ci": (lo_a, hi_a)}
+
+    # 1c. run and decision totals (all committed logs)
+    runs = dec_n = 0
+    for p in sorted(R.glob("raw_*.txt")):
+        lines = [x for x in p.read_text(encoding="utf-8").splitlines() if x.strip()]
+        runs += len(lines)
+        dec_n += sum(len(x.split("|")[3]) for x in lines if not x.endswith(("BAD", "NULL")))
+    out.append(f"\nTotals over all committed logs (inspection/results/raw_*.txt): {runs} review runs, {dec_n} item "
+               "decisions. The pilots before Exp 1a and Exp 9 were not kept and are not in these totals.\n")
+    J["totals"] = {"runs": runs, "decisions": dec_n}
+
     # 2. no-evidence views: decision set x reviewer, content-clustered, paired
     def no_ev(card_rows, forced_rows, label):
         lines = [f"\n### {label}\n\n| reviewer | correct approved, A/R/Q | correct approved, A/R | paired difference | "
@@ -190,6 +214,20 @@ def main() -> None:
                        f"already approved {100 * res['sonnet']['card']:.0f}% with Q available.\n")
     J["no_evidence"] = {"original": res_orig, "replication": res_rep}
 
+    # bimodality of forced-choice Haiku: runs that rejected every item
+    out.append("\nForced-choice (A/R) runs that rejected all 30 items:\n\n| sample | reviewer | all-reject runs | runs |\n|---|---|---|---|\n")
+    J["all_reject"] = {}
+    for name, rows in (("original", forced), ("replication", rf)):
+        for op in OPS:
+            byrun = defaultdict(list)
+            for r in rows:
+                if r["operator"] == op:
+                    byrun[r["run"]].append(r["reject"])
+            if byrun:
+                n_all_r = sum(1 for v in byrun.values() if all(v))
+                J["all_reject"][f"{name}|{op}"] = [n_all_r, len(byrun)]
+                out.append(f"| {name} | {op} | {n_all_r} | {len(byrun)} |\n")
+
     # 3. SDT where sensitivity is finite: card view (A > Q > R) and forced
     out.append("\n## 3. Signal detection in the no-evidence views (hidden defects vs correct items)\n\n"
                "Rating scale A > Q > R. Point 1: 'approve' vs not; point 2 (card only): 'approve or query' vs reject. "
@@ -216,10 +254,15 @@ def main() -> None:
             d, c = dprime(rows)
             dlo, dhi = boot(rows, lambda s: dprime(s)[0])
             clo, chi = boot(rows, lambda s: dprime(s)[1])
-            d2 = dprime(rows, "hard")[0] if view.startswith("card") else float("nan")
-            J["sdt"][f"{op}|{view}"] = {"d": d, "c": c, "d_ci": (dlo, dhi), "c_ci": (clo, chi)}
-            out.append(f"| {op} | {view} | {d:.2f} [{dlo:.2f}, {dhi:.2f}] | {c:.2f} [{clo:.2f}, {chi:.2f}] | "
-                       f"{'' if d2 != d2 else f'{d2:.2f}'} |\n")
+            if view.startswith("card"):
+                d2 = dprime(rows, "hard")[0]
+                d2lo, d2hi = boot(rows, lambda s: dprime(s, "hard")[0])
+                d2s = f"{d2:.2f} [{d2lo:.2f}, {d2hi:.2f}]"
+            else:
+                d2, d2lo, d2hi, d2s = float("nan"), float("nan"), float("nan"), ""
+            J["sdt"][f"{op}|{view}"] = {"d": d, "c": c, "d_ci": (dlo, dhi), "c_ci": (clo, chi),
+                                        "d_AQ_vs_R": d2, "d_AQ_vs_R_ci": (d2lo, d2hi)}
+            out.append(f"| {op} | {view} | {d:.2f} [{dlo:.2f}, {dhi:.2f}] | {c:.2f} [{clo:.2f}, {chi:.2f}] | {d2s} |\n")
 
     # 4. persuasion where the criterion can move
     out.append("\n## 4. Persuasive justification where the criterion is free to move\n\n"
@@ -238,39 +281,45 @@ def main() -> None:
         n = len(a)
         po = sum(x == y for x, y in zip(a, b, strict=True)) / n
         pe = sum((a.count(c) / n) * (b.count(c) / n) for c in cats)
-        return (po - pe) / (1 - pe) if pe < 1 else 1.0
+        return (po - pe) / (1 - pe) if pe < 1 else float("nan")  # undefined when both raters use one category
 
     dec: dict[tuple, dict[int, str]] = defaultdict(dict)
     for r in v3:
         dec[(r["batch"], r["operator"], r["rep"])][r["pos"]] = r["decision"]
     out.append("\n## 5. Attribute agreement (AIAG-style), per display, 3-category A/R/Q, Cohen's kappa\n\n"
                "Repeatability: same reviewer, same queue, two runs (10% prevalence queues). Reproducibility: two "
-               "reviewers, same queue, first run.\n\n| display | comparison | kappa | items |\n|---|---|---|---|\n")
-    J["agreement"] = {}
+               "reviewers, same queue, first run. 95% CIs: percentile bootstrap over queue contents (both "
+               "justification styles of a content resampled together). Repeatability rests on 3 contents x 2 styles "
+               "= 6 queues, so its CIs are very rough; resamples where kappa is undefined are dropped. Haiku-low vs Haiku is the same model at two effort settings, so it is closer to "
+               "repeatability than to reproducibility.\n\n| display | comparison | kappa [95% CI] | items | contents |\n"
+               "|---|---|---|---|---|\n")
+
+    def kappa_pairs(pairs):
+        return kappa3([p["a"] for p in pairs], [p["b"] for p in pairs])
+
+    def kappa_line(label, key, pairs):
+        if not pairs:
+            return
+        kv = kappa_pairs(pairs)
+        lo, hi = boot(pairs, kappa_pairs)
+        J["agreement"][key] = kv
+        J["agreement_ci"][key] = (lo, hi)
+        out.append(f"| {disp} | {label} | {kv:.2f} [{lo:.2f}, {hi:.2f}] | {len(pairs)} | "
+                   f"{len({p['content'] for p in pairs})} |\n")
+
+    J["agreement"], J["agreement_ci"] = {}, {}
     for disp in ("card", "source", "aligned"):
         for op in OPS:
-            a, b = [], []
-            for (bt, o, rp), d in dec.items():
-                if o == op and rp == 0 and bt.endswith(disp) and (bt, o, 1) in dec:
-                    for pos in sorted(d):
-                        a.append(d[pos])
-                        b.append(dec[(bt, o, 1)][pos])
-            if a:
-                kv = kappa3(a, b)
-                J["agreement"][f"{disp}|repeat|{op}"] = kv
-                out.append(f"| {disp} | repeatability {op} | {kv:.2f} | {len(a)} |\n")
+            pairs = [{"content": bt.split("-")[0], "a": d[pos], "b": dec[(bt, o, 1)][pos]}
+                     for (bt, o, rp), d in dec.items()
+                     if o == op and rp == 0 and bt.endswith(disp) and (bt, o, 1) in dec for pos in sorted(d)]
+            kappa_line(f"repeatability {op}", f"{disp}|repeat|{op}", pairs)
         for i, o1 in enumerate(OPS):
             for o2 in OPS[i + 1:]:
-                a, b = [], []
-                for (bt, o, rp), d in dec.items():
-                    if o == o1 and rp == 0 and bt.endswith(disp) and (bt, o2, 0) in dec:
-                        for pos in sorted(d):
-                            a.append(d[pos])
-                            b.append(dec[(bt, o2, 0)][pos])
-                if a:
-                    kv = kappa3(a, b)
-                    J["agreement"][f"{disp}|{o1}|{o2}"] = kv
-                    out.append(f"| {disp} | {o1} vs {o2} | {kv:.2f} | {len(a)} |\n")
+                pairs = [{"content": bt.split("-")[0], "a": d[pos], "b": dec[(bt, o2, 0)][pos]}
+                         for (bt, o, rp), d in dec.items()
+                         if o == o1 and rp == 0 and bt.endswith(disp) and (bt, o2, 0) in dec for pos in sorted(d)]
+                kappa_line(f"{o1} vs {o2}", f"{disp}|{o1}|{o2}", pairs)
 
     # 6. Exp 4: prevalence and the criterion on never-defective items, clean vs cued
     never = {}
@@ -333,8 +382,11 @@ def main() -> None:
                       "miss_other": [m_norm, n_norm]}
     if rev:
         fm = [r for r in rev if r["operator"].endswith(("-str", "-num"))]
-        out.append("Interleaved re-test (same session, same queues, randomized order), evidence shown:\n\n"
-                   "| reviewer | format | defects judged | approved | exact 95% CI | false alarms |\n|---|---|---|---|---|---|\n")
+        out.append("Interleaved re-test (same session, same queues, randomized order), evidence shown. The exact CI "
+                   "treats judgments as independent; the content-clustered CI resamples queue contents (both runs and "
+                   "both displays of a content together), which is the honest one since misses cluster in runs.\n\n"
+                   "| reviewer | format | defects judged | approved | runs | exact 95% CI | content-clustered 95% CI | "
+                   "false alarms |\n|---|---|---|---|---|---|---|---|\n")
         J["format_interleaved"] = {}
         for op in ("haiku", "sonnet"):
             for f in ("str", "num"):
@@ -342,11 +394,26 @@ def main() -> None:
                 sg = [r for r in s if r["signal"]]
                 kk = sum(1 - r["reject"] for r in sg)
                 lo, hi = clopper_pearson(kk, len(sg))
+                blo, bhi = boot(sg, approve_rate)
                 fa = mean(r["reject"] for r in s if not r["signal"]) if s else float("nan")
                 J["format_interleaved"][f"{op}-{f}"] = {"approved": kk, "n": len(sg), "fa": fa,
-                                                        "runs": len({r['run'] for r in s})}
+                                                        "runs": len({r['run'] for r in s}), "ci_exact": (lo, hi),
+                                                        "ci_content": (blo, bhi)}
                 out.append(f"| {op} | {'30-letter string' if f == 'str' else 'item-numbered'} | {len(sg)} | {kk} | "
-                           f"[{100 * lo:.1f}, {100 * hi:.1f}] | {100 * fa:.1f}% |\n")
+                           f"{len({r['run'] for r in s})} | [{100 * lo:.1f}, {100 * hi:.1f}] | "
+                           f"[{100 * blo:.1f}, {100 * bhi:.1f}] | {100 * fa:.1f}% |\n")
+            # paired difference string - numbered on defect approval, same contents
+            both = [r for r in fm if r["operator"] in (f"{op}-str", f"{op}-num") and r["signal"]]
+
+            def fdiff(s, op=op):
+                return (approve_rate([r for r in s if r["operator"] == f"{op}-str"])
+                        - approve_rate([r for r in s if r["operator"] == f"{op}-num"]))
+
+            dv = fdiff(both)
+            dlo, dhi = boot(both, fdiff)
+            J["format_interleaved"][f"{op}-diff"] = {"diff": dv, "ci": (dlo, dhi)}
+            out.append(f"| {op} | string minus numbered (paired by content) | | {100 * dv:+.1f} pts | | | "
+                       f"[{100 * dlo:+.1f}, {100 * dhi:+.1f}] | |\n")
         n_bad = sum(1 for line in (R / "raw_revision.txt").read_text().splitlines() if line.endswith(("BAD", "NULL")))
         out.append(f"\nInvalid outputs in the revision runs: {n_bad}.\n")
 
@@ -395,10 +462,86 @@ def main() -> None:
         aoql = max(p * ((1 - p) ** n if n else 1.0) * (N_LOT - n) / N_LOT for p in [i / 2000 for i in range(1, 1001)])
         J["sampling"][n] = aoql
         out.append(f"| n = {n}, c = 0 | {1000 * aoql:.1f} |\n")
-    out.append("\nExample: an agent defect rate of 5% reviewed in a forced-choice card view (hidden-defect approval "
-               "~55-74%) gives p_in of roughly 2.8-3.7%, above the AOQL of n = 5 sampling, so post-review sampling "
-               "alone does not reach a low outgoing defect rate; attaching the evidence brings p_in to approximately 0 "
-               "(upper bound per section 1).\n")
+    fh = [res_orig[o]["forced_hidden"] for o in ("haiku", "sonnet", "opus")]
+    sup_by_cell = {}
+    for r in x7 + [r for r in rev if r["style"] == "later"]:
+        if r["signal"]:
+            sup_by_cell.setdefault((r["operator"], r["display"], r["style"]), []).append(1 - r["reject"])
+    worst = max(sup_by_cell.items(), key=lambda kv: mean(kv[1]))
+    P_AGENT = 0.05
+    J["sampling_example"] = {"p_agent": P_AGENT, "forced_hidden_range": (min(fh), max(fh)),
+                             "p_in_forced": (P_AGENT * min(fh), P_AGENT * max(fh)),
+                             "p_in_evidence_all": (P_AGENT * k_all / n_all, P_AGENT * lo_a, P_AGENT * hi_a),
+                             "worst_superseded_cell": [list(worst[0]), sum(worst[1]), len(worst[1])]}
+    out.append(f"\nExample: an agent defect rate of 5% reviewed in a forced-choice card view, using the hidden-defect "
+               f"approval of Haiku, Sonnet and Opus ({100 * min(fh):.1f}-{100 * max(fh):.1f}%), gives p_in of about "
+               f"{100 * P_AGENT * min(fh):.1f}-{100 * P_AGENT * max(fh):.1f}%. This is an upper figure: defects with a "
+               "visible cue on the card are caught far more often. With the evidence attached, all item-numbered "
+               f"conditions pooled (section 1b, {k_all}/{n_all}): p_in = {100 * P_AGENT * k_all / n_all:.2f}% "
+               f"[{100 * P_AGENT * lo_a:.2f}, {100 * P_AGENT * hi_a:.2f}]; the worst single cell "
+               f"({worst[0][0]}, {worst[0][1]}, superseded evidence, {sum(worst[1])}/{len(worst[1])}) gives "
+               f"{100 * P_AGENT * mean(worst[1]):.2f}%.\n")
+
+    # 12. Exp 9: thread evidence, within-item prevalence (1 vs 10 per 30), terse vs misquoting justification
+    if x9:
+        never9 = {}
+        for b in sorted({r["content"][:2] for r in x9}):
+            kk = json.loads((KEYS / f"{b}k10.json").read_text(encoding="utf-8"))
+            never9[b] = {i["pos"] for i in kk if not i["defect"]}
+        for r in x9:
+            r["base"] = r["content"][:2]
+        sg9 = [r for r in x9 if r["signal"]]
+        out.append("\n## 12. Exp 9: three-message threads, prevalence within item (1 vs 10 per 30)\n\n"
+                   f"{len({r['run'] for r in x9})} runs, {len(x9)} item decisions, {len(never9)} base queues. Each base "
+                   "queue has one version with 10 defects and ten versions with 1 defect (each of the 10 defective "
+                   "items alone).\n\n**Misses** (defects approved):\n\n| split | approved / judged |\n|---|---|\n")
+        J["exp9"] = {"misses": {}}
+        for label, f in (("prevalence 1/30", lambda r: r["prevalence"] == 1),
+                         ("prevalence 10/30", lambda r: r["prevalence"] == 10),
+                         ("terse justification", lambda r: r["style"] == "terse"),
+                         ("misquoting justification", lambda r: r["style"] == "specific")):
+            s = [r for r in sg9 if f(r)]
+            kk = sum(1 - r["reject"] for r in s)
+            J["exp9"]["misses"][label] = [kk, len(s)]
+            out.append(f"| {label} | {kk}/{len(s)} |\n")
+        for op in OPS:
+            s = [r for r in sg9 if r["operator"] == op]
+            out.append(f"| {op} | {sum(1 - r['reject'] for r in s)}/{len(s)} |\n")
+        missed = [f"{r['operator']} {r['defect']} in {r['content']}" for r in sg9 if not r["reject"]]
+        out.append(f"\nApproved defects: {', '.join(missed) or 'none'}.\n\n"
+                   "**False alarms on never-defective items** (items that are correct in every version), 1/30 vs 10/30. "
+                   "Difference = 1/30 minus 10/30, in points; 95% CI by bootstrap over the base queues, paired (the "
+                   "same items in both prevalences). With only four base queues these CIs are rough.\n\n"
+                   "| reviewer | items | 1/30 | 10/30 | difference [95% CI] |\n|---|---|---|---|---|\n")
+        J["exp9"]["never_defective_fa"] = {}
+
+        def fa_diff(s):
+            return (mean(r["reject"] for r in s if r["prevalence"] == 1)
+                    - mean(r["reject"] for r in s if r["prevalence"] == 10))
+
+        for op in OPS:
+            for label, cf in (("clean", lambda r: r["clean"] == 1), ("cued", lambda r: r["clean"] == 0),
+                              ("all", lambda r: True)):
+                s = [r for r in x9 if r["operator"] == op and r["pos"] in never9[r["base"]] and cf(r)]
+                a = [r for r in s if r["prevalence"] == 1]
+                b = [r for r in s if r["prevalence"] == 10]
+                if not a or not b:
+                    continue
+                dv = fa_diff(s)
+                lo, hi = boot(s, fa_diff, key="base")
+                ka, kb = sum(r["reject"] for r in a), sum(r["reject"] for r in b)
+                J["exp9"]["never_defective_fa"][f"{op}|{label}"] = {"p1": ka / len(a), "n1": len(a), "p10": kb / len(b),
+                                                                    "n10": len(b), "diff": dv, "ci": (lo, hi)}
+                out.append(f"| {op} | {label} | {100 * ka / len(a):.1f}% ({ka}/{len(a)}) | "
+                           f"{100 * kb / len(b):.1f}% ({kb}/{len(b)}) | {100 * dv:+.1f} [{100 * lo:+.1f}, {100 * hi:+.1f}] |\n")
+        # false alarms on correct items that are defective in other versions of the same base queue
+        out.append("\n**False alarms on correct items that are defective in other versions** (the 1/30 versions, "
+                   "where 9 of the 10 target items are correct):\n\n| reviewer | false alarms |\n|---|---|\n")
+        for op in OPS:
+            s = [r for r in x9 if r["operator"] == op and not r["signal"] and r["pos"] not in never9[r["base"]]]
+            kk = sum(r["reject"] for r in s)
+            out.append(f"| {op} | {100 * kk / len(s):.1f}% ({kk}/{len(s)}) |\n")
+            J["exp9"].setdefault("other_version_fa", {})[op] = [kk, len(s)]
 
     (R / "STATS.md").write_text("".join(out), encoding="utf-8", newline="\n")
     (R / "stats.json").write_text(json.dumps(J, indent=1, default=str), encoding="utf-8", newline="\n")
