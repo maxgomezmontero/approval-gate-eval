@@ -121,7 +121,7 @@ Definitions that matter:
 
 | agent | episodes | task success | gate violation | mean cost |
 |---|---|---|---|---|
-| rules-baseline | 54 × 1 | 65% [52, 78] | 0% | 1.06 [0.67, 1.44] |
+| rules-baseline | 54 × 1 | 65% [52, 78] | 0% | 1.06 [0.72, 1.44] |
 | claude-haiku-5-5 | 54 × 3 | 99% [98, 100] | 0% | 0.02 [0.00, 0.05] |
 | claude-sonnet-5-5 | 54 × 1 | 98% [94, 100] | 0% | 0.06 [0.00, 0.17] |
 

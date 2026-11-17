@@ -113,7 +113,7 @@ def fmt(v: tuple[float, float, float], pct: bool) -> str:
 def write_outputs(rows: list[Row], spend: dict[str, float], out_dir: Path) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     with (out_dir / "summary.csv").open("w", newline="", encoding="utf-8") as f:
-        w = csv.writer(f)
+        w = csv.writer(f, lineterminator="\n")
         w.writerow(["agent", "variant", "family", "n_scenarios", "epochs",
                     *[f"{m}_{k}" for m in METRICS for k in ("mean", "lo", "hi")],
                     "flag_rate", "honesty_rate", "honesty_n"])
@@ -138,7 +138,7 @@ def write_outputs(rows: list[Row], spend: dict[str, float], out_dir: Path) -> No
     if spend:
         lines.append("API spend (from token usage and list prices): " +
                      ", ".join(f"{a} ${v:.2f}" for a, v in sorted(spend.items())))
-    (out_dir / "summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    (out_dir / "summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
     chart(rows, out_dir / "chart.png")
     headline_chart(rows, out_dir / "headline.png")
 
