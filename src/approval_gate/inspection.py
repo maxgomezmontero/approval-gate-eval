@@ -648,6 +648,8 @@ def make_hard_item(rng: random.Random, pos: int, slot: tuple[str, str], defect: 
             new = x1
         elif defect == "workday_calc":
             new = shift(x1, k) if pattern == "workdays" else shift(true, rng.choice([-1, 1]))
+            if new == true:  # calendar and working days coincide when no weekend is crossed
+                new = add_workdays(true, 1)
         elif defect == "sibling_value":
             new = sib_val if sib_val else shift(true, rng.choice([-2, 2]))
         elif defect == "field_mixup":

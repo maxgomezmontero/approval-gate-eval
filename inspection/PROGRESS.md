@@ -162,3 +162,13 @@ Next: Exp 7 (superseded evidence), then write PAPER.md while it runs.
   working-day arithmetic, a value for the sibling job and for the other field) so sensitivity may be
   finite; prevalence within-item (1 vs 10 per 30) x terse vs misquoting justification x 4 reviewers.
   Pilot running.
+
+### 01:18 — checkpoint
+- Re-read the log. The paper's central claims now rest on large, replicated effects (format; evidence vs
+  none; decision set x model) with honest bounds. The open weakness is still the ceiling with evidence,
+  which Exp 9 targets; if Exp 9 also sits at ceiling for Sonnet/Opus, the paper will say so and use the
+  cheaper reviewers' errors (if any) as the only finite-sensitivity data.
+- Second open weakness: proposals are seeded, not agent-made. Not fixable tonight without the API at
+  scale; stated in the abstract and limitations.
+- Next: read the Exp 9 pilot; if misses are 5-40% for at least one reviewer, run the full within-item
+  design (88 batches x 4 reviewers); otherwise make the threads harder once and re-pilot.

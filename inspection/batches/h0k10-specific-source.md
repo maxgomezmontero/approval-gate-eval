@@ -279,9 +279,9 @@ There are 30 proposals below, numbered 01 to 30.
      | [3] Dana Whitlock (purchasing): We are revising the PO for job J-24109; new number to follow.
 
 [28] P-103 · J-24103 · Harrow Valley Trailers (overhead conveyor loop)
-     Proposed change: install_date: 2026-12-02 -> 2026-12-10
+     Proposed change: install_date: 2026-12-02 -> 2026-12-11
      Source: T-1584, subject "Re: Re: Install start - J-24103"
-     Agent's reason: T-1584 says the installation start for J-24103 is now 2026-12-10 (it was 2026-12-02). I matched the job number and the field.
+     Agent's reason: T-1584 says the installation start for J-24103 is now 2026-12-11 (it was 2026-12-02). I matched the job number and the field.
      Source email T-1584 from Tom Brandvold <tom@harrow-valley.example>:
      | Thread (newest first):
      | [1] Tom Brandvold: Update on job J-24103: the install start slips 3 working days beyond December 7, 2026.

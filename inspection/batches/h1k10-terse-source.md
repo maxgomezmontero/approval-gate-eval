@@ -19,7 +19,7 @@ There are 30 proposals below, numbered 01 to 30.
      | [3] Jordan Pike: Job J-24102: the ship date moves from 2026-11-24 to 2026-12-01.
 
 [02] P-107 · J-24107 · Redfern Steel Shelving (conveyor extension)
-     Proposed change: ship_date: 2026-11-27 -> 2026-12-04
+     Proposed change: ship_date: 2026-11-27 -> 2026-12-07
      Source: T-6682, subject "Re: Re: Ship date - J-24107"
      Agent's reason: Per T-6682.
      Source email T-6682 from Dana Whitlock <dana@fenwick-conveyor.example>:
