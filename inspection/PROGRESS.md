@@ -144,3 +144,21 @@ Next: Exp 7 (superseded evidence), then write PAPER.md while it runs.
 - Launched: (a) replication of the headline (card view, Q vs forced) on 6 fresh queues x 4 reviewers x 2
   reps; (b) three independent referee agents (statistics, AI-safety novelty, inspection-science rigor)
   reviewing PAPER.md. Next: revise the paper against their reports.
+
+### 01:20 — referee panel, revision runs, paper v2; Exp 9 to break the ceiling
+- Three referee agents: all "major revision". Main points: inflated units (82 unique defective items, not
+  1,432), bootstrap by run instead of by queue, degenerate [0,0] intervals, ceiling makes nulls
+  uninformative, oracle alignment, format test not isolated, "interface not model" overclaimed (it is an
+  interaction), Gage R&R misnamed/pooled, vigilance misnamed, acceptance sampling strawman, Exp 7
+  instruction ambiguity, AI-control framing mismatched (non-adversarial). Saved in inspection/REFEREES.json.
+- Revision runs (308): randomized same-session format test (Sonnet 17/140 vs 0/140; Haiku 0 vs 0); Exp 7
+  with "correct given everything shown" wording (2/280 missed); key-free regex alignment (same as oracle on
+  templated emails). Replication of Q vs forced on 6 fresh queues (96 runs) reproduced the effect for Haiku
+  and Opus; Sonnet already approved ~89%.
+- New stats script: item-level bounds, content-clustered and paired bootstraps, exact intervals, SDT in
+  no-evidence views (d' ~ 0), per-display 3-category kappa (card test-retest kappa 0.01-0.49; aligned
+  0.94-1.00), proper rectifying sampling plan. PAPER.md rewritten; Appendix C lists every change.
+- Remaining big criticism: detection ceiling with evidence. Exp 9 builds 3-message threads (corrections,
+  working-day arithmetic, a value for the sibling job and for the other field) so sensitivity may be
+  finite; prevalence within-item (1 vs 10 per 30) x terse vs misquoting justification x 4 reviewers.
+  Pilot running.

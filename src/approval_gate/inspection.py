@@ -570,3 +570,140 @@ def build_revision(out_dir: Path = ROOT) -> list[str]:
             (out_dir / "batches" / f"{bid}.md").write_text(text, encoding="utf-8", newline="\n")
             out.append(bid)
     return out
+
+
+# ------------------------------------------------------------------ experiment 9: hard threads (finite sensitivity)
+
+from datetime import date as _date
+from datetime import timedelta as _td
+
+HARD_DEFECTS = ("stale_in_thread", "workday_calc", "sibling_value", "field_mixup")
+
+
+def add_workdays(iso: str, n: int) -> str:
+    d = _date.fromisoformat(iso)
+    step = 1 if n > 0 else -1
+    left = abs(n)
+    while left:
+        d += _td(days=step)
+        if d.weekday() < 5:
+            left -= 1
+    return d.isoformat()
+
+
+def next_monday(iso: str) -> str:
+    d = _date.fromisoformat(iso) + _td(days=1)
+    while d.weekday() != 0:
+        d += _td(days=1)
+    return d.isoformat()
+
+
+def make_hard_item(rng: random.Random, pos: int, slot: tuple[str, str], defect: str | None) -> Item:
+    """A card whose source is a 3-message thread (newest first). The correct value needs the newest
+    message, sometimes working-day arithmetic, while the thread also carries the earlier value, a value for
+    the customer's other project or for the other date field."""
+    pid, field = slot
+    p = PROJ[pid]
+    eid = f"T-{rng.randint(1000, 9999)}"
+    if field == "po_number":
+        base = p.po_number or f"{''.join(w[0] for w in p.customer.split()[:3]).upper()}-{rng.randint(1000, 9999)}"
+        b1, b2 = f"{base}-R{rng.randint(1, 2)}", f"{base}-R{rng.randint(3, 4)}"
+        person, _ = _customer(rng, p)
+        msgs = [f"{person} (purchasing): Please ignore my last note. The PO for job {p.job} is {b2}; {b1} was a draft.",
+                f"{person} (purchasing): Re-issued PO for job {p.job} is {b1}.",
+                f"{person} (purchasing): We are revising the PO for job {p.job}; new number to follow."]
+        true, new = b2, (b1 if defect == "stale_in_thread" else b2)
+        key = msgs[0]
+        subject = f"Re: Re: PO - {p.job}"
+        sender = f"{person} <purchasing@{p.customer_domain}>"
+    else:
+        other = "install_date" if field == "ship_date" else "ship_date"
+        what = {"ship_date": "ship date", "install_date": "install start"}
+        old = getattr(p, field)
+        x1 = shift(old, rng.choice([5, 7, 9, 12]))
+        sib = PROJ.get(SIBLING.get(pid, ""), None)
+        sib_txt, sib_val = "", None
+        if sib is not None:
+            sib_val = shift(getattr(sib, field), rng.choice([4, 6, 10]))
+            sib_txt = f" Separately, {sib.job} (your other project with us) moves its {what[field]} to {fmt_date(sib_val, 0)}."
+        oth_val = shift(getattr(p, other), rng.choice([3, 8, 11]))
+        pattern = rng.choice(["workdays", "correction", "monday"])
+        if pattern == "workdays":
+            k = rng.choice([2, 3, 4])
+            true = add_workdays(x1, k)
+            newest = f"Update on job {p.job}: the {what[field]} slips {k} working days beyond {fmt_date(x1, 1)}."
+        elif pattern == "correction":
+            true = shift(x1, rng.choice([-3, 2, 4]))
+            newest = f"Correction on job {p.job}: the {what[field]} is {fmt_date(true, 2)}, not {fmt_date(x1, 2)}."
+        else:
+            true = next_monday(x1)
+            newest = f"For job {p.job}, plant management wants the {what[field]} on the Monday after {fmt_date(x1, 1)}."
+        person, sender = (_customer(rng, p) if field == "install_date" else _vendor(rng)[1:])
+        msgs = [f"{person}: {newest}",
+                f"{person}: For job {p.job} the {what[other]} moves to {fmt_date(oth_val, 0)}.{sib_txt}",
+                f"{person}: Job {p.job}: the {what[field]} moves from {fmt_date(old, 0)} to {fmt_date(x1, 0)}."]
+        key = msgs[0]
+        new = true
+        if defect == "stale_in_thread":
+            new = x1
+        elif defect == "workday_calc":
+            new = shift(x1, k) if pattern == "workdays" else shift(true, rng.choice([-1, 1]))
+        elif defect == "sibling_value":
+            new = sib_val if sib_val else shift(true, rng.choice([-2, 2]))
+        elif defect == "field_mixup":
+            new = oth_val
+        subject = f"Re: Re: {what[field].capitalize()} - {p.job}"
+    body = "Thread (newest first):\n" + "\n".join(f"[{i + 1}] {m}" for i, m in enumerate(msgs))
+    old_val = getattr(p, field) or "(blank)"
+    return Item(pos, defect, eid, sender, subject, body, key, p.job, pid, field, old_val, new)
+
+
+HARD_ELIGIBLE = {
+    "stale_in_thread": lambda s: True,
+    "workday_calc": lambda s: s[1] != "po_number",
+    "sibling_value": lambda s: s[1] != "po_number" and s[0] in SIBLING,
+    "field_mixup": lambda s: s[1] != "po_number",
+}
+
+
+def make_hard_content(seed: int, n_defects: int) -> list[Item]:
+    rng = random.Random(seed)
+    slots = [(p.id, f) for p in PROJECTS for f in ("ship_date", "install_date", "po_number")]
+    rng.shuffle(slots)
+    defects = [HARD_DEFECTS[(seed + i) % len(HARD_DEFECTS)] for i in range(n_defects)]
+    assigned: dict[int, str] = {}
+    for d in defects:
+        free = [i for i, s in enumerate(slots) if i not in assigned and HARD_ELIGIBLE[d](s)]
+        assigned[rng.choice(free)] = d
+    return [make_hard_item(random.Random(seed * 1000 + i), i + 1, slots[i], assigned.get(i)) for i in range(BATCH_SIZE)]
+
+
+def hard_versions(seed: int) -> dict[str, list[Item]]:
+    """10-defect base and ten 1-defect versions; correct versions of the other defective slots are the same
+    item regenerated with defect=None from the same per-item seed, so the thread text is identical."""
+    base = make_hard_content(seed, 10)
+    fixed = {it.pos: make_hard_item(random.Random(seed * 1000 + it.pos - 1), it.pos, (it.project_id, it.field), None)
+             for it in base if it.defect}
+    versions = {"k10": base}
+    for j, it in enumerate([i for i in base if i.defect]):
+        versions[f"k1d{j}"] = [x if (not x.defect or x.pos == it.pos) else fixed[x.pos] for x in base]
+    return versions
+
+
+def build_exp9(out_dir: Path = ROOT, key_dir: Path | None = None, n_bases: int = 4) -> list[str]:
+    key_dir = key_dir or out_dir / "keys"
+    out = []
+    for b in range(n_bases):
+        for name, items in hard_versions(90000 + b).items():
+            content_id = f"h{b}{name}"
+            (key_dir / f"{content_id}.json").write_text(json.dumps([asdict(i) for i in items], indent=1),
+                                                       encoding="utf-8", newline="\n")
+            for style in ("terse", "specific"):
+                bid = f"{content_id}-{style}-source"
+                if style == "terse":
+                    text = render_batch(items, "terse", "source")
+                else:
+                    text = render_batch_specific(items, "source")
+                (out_dir / "batches" / f"{bid}.md").write_text(text, encoding="utf-8", newline="\n")
+                out.append(bid)
+    return out
