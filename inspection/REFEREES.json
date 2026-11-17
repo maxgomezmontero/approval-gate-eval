@@ -1,0 +1,317 @@
+[
+ {
+  "verdict": "major revision",
+  "major_issues": [
+   {
+    "issue": "The unit of analysis is inflated, so the headline zero-miss bound is too tight. The bound 'rule-of-three upper bound 0.2%' treats 1,432 defect judgments as i.i.d. They come from roughly 82 unique defective items: 35 in the 11 p-contents, reused across v3 (2 styles x 2 displays x 4 reviewers, plus reps) and again in Exp 3; 20 in Exp 4; 27 in Exp 5. Judgments of the same item by different reviewers, styles and displays are strongly correlated. The per-type counts are small: the p-content keys hold 5-7 unique items per defect type (near_value 6, relative_miscalc 5, sibling 7, stale 5, unsupported 5, wrong_field 7).",
+    "where": "Abstract (1), Sec 4.2 '0 of 1,432 ... (rule-of-three upper bound 0.2%)', Contribution 3",
+    "fix": "Report the number of unique defective items next to the number of judgments. Give the bound at both levels: about 3/1432 = 0.2% if judgments were independent, and about 3/82 = 3.7% if all judgments of an item are perfectly correlated. Also give per-reviewer bounds (3/358 = 0.84%) and per-defect-type bounds based on unique items. Rephrase the claim as 'no misses observed on N unique items; a 95% upper bound between X and Y depending on intra-item correlation'."
+   },
+   {
+    "issue": "Clustering only by run ignores crossed random effects. cluster_bootstrap resamples runs, but runs share queue contents across reviewers, styles, displays and reps (11 contents in v3 and Exp 6). Between-content variance is therefore not propagated. For example, the Q-vs-forced comparison rests on 11 contents per reviewer, not 590 items or 22 runs. Separately, the paired comparisons (card+Q vs forced on the same queues; source vs aligned on the same queues) are analysed as two independent rates.",
+    "where": "Sec 3.4 'percentile bootstrap clustered by review run (2,000 resamples)'; all CIs in paper_numbers.json",
+    "fix": "Bootstrap by content (queue), or fit a mixed logistic model with random intercepts for content and item, crossed with run. For the paired designs (Q vs forced, source vs aligned, string vs numbered), report the paired difference with a CI from a paired cluster bootstrap over content."
+   },
+   {
+    "issue": "Percentile cluster-bootstrap CIs collapse to [0, 0] at zero events, and the reported zero rates come with no valid interval. EXTRA.md prints '0.0% [0.0%, 0.0%]' throughout. The paper reports 'with item-numbered output ... it was 0.0%' with no interval while giving [9.8, 26.1] for the comparator.",
+    "where": "Sec 4.1, Sec 4.4 (Sonnet aligned 0.0%), Exp 4/5 tables in EXTRA.md, paper_numbers.json lo/hi = 0",
+    "fix": "For zero or near-zero cells, use exact (Clopper-Pearson) or Wilson intervals, inflated by a design effect estimated from the clustered data, or a one-sided rule-of-three bound on unique items. Never print a degenerate [0,0] interval."
+   },
+   {
+    "issue": "Ceiling makes the null claims uninformative, yet they are worded as findings. With 0 misses in every cell, no test of a prevalence, persuasion or vigilance effect on misses has any power. The phrase 'This is the opposite of what inspection science predicts for humans' presents absence of evidence as contrary evidence. The contribution also states 'no vigilance decrement in 1,432 defect judgments', but vigilance was tested only in Exp 5 (216 judgments, about 27 unique defects). Vigilance was operationalised as total queue length, not as position within the queue or time on task.",
+    "where": "Abstract (1); Sec 4.2; Contribution 3; Sec 7 'behaved like ideal inspectors'",
+    "fix": "State the minimum detectable effect. For example, at 1/30 prevalence in Exp 4 there are 80 judgments on 20 unique items, so the 95% bound on the miss rate at 3% prevalence is about 3.75% to 15%. Restrict the vigilance claim to Exp 5 and analyse misses and false alarms by item position (early vs late thirds of the 150-item queues). Drop 'opposite of what inspection science predicts'."
+   },
+   {
+    "issue": "The 'no prevalence effect' claim ignores the criterion data, which show a prevalence-dependent shift. In inspection science the prevalence effect is a criterion shift. Exp 4 false alarms on never-defective items fall with prevalence: haiku-low 18.0% to 14.2% to 0%, haiku 18.3% to 10% to 12.5% (exp4_fa_never_defective). The paper reports this nowhere. The 10-per-30 cell has only n=40 items from 2 queues.",
+    "where": "Sec 4.2 'We therefore find no prevalence effect'; Sec 5 'Why no prevalence effect?'",
+    "fix": "Report false-alarm rates and c by prevalence for Exp 4 with content-clustered CIs. Restate the conclusion as 'no detectable effect on misses (ceiling); a possible prevalence-dependent criterion shift in Haiku false alarms (direction opposite to the human effect), underpowered'. Add a cue-controlled analysis, since the never-defective positions differ in ambiguity cues."
+   },
+   {
+    "issue": "Output format is confounded with session and prompt version, and 'transcription slips' is asserted rather than shown. The v2 and v3 runs were separate batches at different times. v3 added schema validation and an item-numbered prompt, which may also change how carefully each item is processed. The evidence offered is that 8 of 56 Sonnet runs fit better after a shift. The paper does not show how many of the 30/176 misses fall in those 8 runs, or what the miss rate is after realignment.",
+    "where": "Sec 4.1 'the difference was transcription slips, not judgement'; Abstract (2); Contribution 2 'output format alone moved'",
+    "fix": "Report the realignment analysis: misses explained by the best shift, and the residual miss rate after realignment, with a CI. List every prompt difference between v2 and v3. Ideally, run a randomized interleaved re-run of string vs numbered format in the same session on the same queues. Soften 'alone' unless that experiment is done."
+   },
+   {
+    "issue": "The 'interface, not the model' headline contradicts the paper's own table and its finding (5). With a query option, Sonnet approved 70.7% of unverifiable correct items vs 3.6% for haiku-low, a 67-point model effect. The largest interface effect is Opus at 68.7 points, but for Sonnet the interface moved approval only 17 points. The data show an interaction, not interface dominance. Abstract (5) then says 'the choice of monitor model ... decides what passes', which contradicts (3).",
+    "where": "Abstract (3) and (5); Contribution 4 'up to 69 points, more than the choice of model'; Sec 4.3 last sentence",
+    "fix": "Report a reviewer x decision-set model, a mixed logistic with content random effects, with the interaction term and its CI. Rephrase as 'both the decision set and the model shift the criterion, and they interact: removing Q moved Haiku and Opus by 42-69 points and Sonnet by 17'. Remove 'more than the choice of model'."
+   },
+   {
+    "issue": "Gage R&R kappas are computed on a binary approve/not-approve recode pooled over card, source and aligned displays. This is not the 'where evidence is missing' stratum that the abstract claims. agreement() uses r['reject'], which collapses R and Q, over all of v3 (18 queues x 30 = 540 items per reviewer). Pooling displays with very different base rates distorts kappa. Agreement 'with the answer key' compares a 3-way decision recoded to binary against a binary key in a condition where Q is the correct response, so it measures little. No kappa has a CI. This is attribute agreement analysis; no Gage R&R variance decomposition or %GRR is computed.",
+    "where": "Abstract (5) 'agree poorly with each other where the evidence is missing (\u03ba 0.38\u20130.45)'; Sec 4.5",
+    "fix": "Compute kappa separately per display, on the 3-category decision (or report R and Q agreement separately), with content-clustered bootstrap CIs. Drop or redefine 'agreement with the standard' (e.g., evidence displays only, or a 3-way key where unverifiable = Q). Rename the section 'attribute agreement analysis', or add a true variance-components analysis."
+   },
+   {
+    "issue": "Methods promise analyses that the results never report. Sec 3.4 lists d\u2032 and c with the log-linear correction, and a logistic regression of misses on factors with cluster-bootstrapped CIs. Neither appears. With zero misses in every evidence cell, the logistic fit is completely separated, and the 1e-6 ridge in logistic() yields arbitrary coefficients. Sec 4.3 nonetheless concludes 'the reviewer's criterion, not its sensitivity, determined outcomes' without reporting any d\u2032 or c.",
+    "where": "Sec 3.4; Sec 4.3 'In inspection terms, the reviewer's criterion, not its sensitivity...'",
+    "fix": "Either report d\u2032 and c per reviewer x condition with CIs, stating how Q is mapped (probably as a separate 'withhold' response, or with c reported for R-only and for not-A), or remove the SDT claim. Remove the logistic regression from Methods, or replace it with an exact or Firth-penalized model on the conditions that actually have misses (card-only, Exp 7)."
+   },
+   {
+    "issue": "Evidence alignment is generated from the ground-truth item, so it acts as an oracle. render_card prints 'job in source: {item.source_job} | project in proposal: {p.job}' and the key_sentence from the generator. For sibling_project defects this line states the mismatch outright. A deployed aligner would need to extract these fields itself and could err. Also, aligned cuts cued false alarms (haiku-low 32.5% to 0.3%), which the paper itself calls 'partly justified' hesitation. The display may therefore be suppressing appropriate caution, for example on ship-after-install conflicts, rather than only removing errors.",
+    "where": "Sec 3.2 'The alignment shows evidence; it does not judge'; Sec 4.4; Abstract (4); Discussion item 2",
+    "fix": "State that the alignment is oracle-extracted and that the result is an upper bound on what a real aligner would achieve. Ideally, add a condition with a model- or regex-extracted alignment, including extraction errors. For the cued items, separate the false-alarm reduction by cue type and discuss whether removing hesitation on genuine conflicts is desirable."
+   },
+   {
+    "issue": "Exp 7 false-alarm comparisons mix denominators and contents. The Exp 7 'false alarms' use all 590 correct items, cued and clean. Sec 4.4 uses clean items only (n=460). The claim 'With the later-email block present, Sonnet's false alarms rose to 17.8%' implicitly compares against Sonnet's 0.7% clean-item rate on different (p-) contents. Exp 7 has no no-block control on the same s-contents, so neither the rise nor its cause ('the extra context made it suspicious') is identified.",
+    "where": "Sec 4.6 table and last sentence",
+    "fix": "Report Exp 7 false alarms on clean and cued items separately. Present the causal claim as a hypothesis, or run the same s-contents without the later-email block as a control."
+   },
+   {
+    "issue": "Section 4.7's escape arithmetic does not reproduce from the reported rates, and its conclusions overreach. Pooled card+Q miss rates from paper_numbers.json, with 42 invisible and 28 visible defects per reviewer, are: Sonnet 26/70 = 37.1%, giving 18.6 per 1,000 at 5% defect rate (paper: 17); Haiku 6/70, giving 4.3 (paper: 3); Opus 5/70, giving 3.6 (paper: 3). These figures also depend on the stimulus's 60/40 invisible/visible mix, which is arbitrary. 'Escapes ... indistinguishable from zero for every reviewer' with evidence contradicts Exp 7, where haiku-low missed 4.3% (about 2 per 1,000). It also ignores the per-reviewer upper bound of about 0.84% (about 4 per 1,000), which overlaps the card+Q Haiku and Opus figures.",
+    "where": "Sec 4.7",
+    "fix": "Recompute from the stored counts and show the formula and inputs. Give intervals that propagate the miss-rate CI. Make the defect-type mix an explicit parameter, and include Exp 7 when making the evidence-attached claim."
+   }
+  ],
+  "minor_issues": [
+   "Sec 4.2: '(0/216)' is attributed to 'queues of 90 and 150 items', but 216 includes the 30-item queues. The 90+150 count is 4 x (18+30) = 192.",
+   "Sec 4.3: 'every reviewer approved the majority of unverifiable proposals' is false for Haiku on correct items (49.2%, CI 28-71%). Given 10/22 all-reject runs, a pooled item rate describes no actual run. Report the run-level distribution (median and IQR of the per-run approve fraction).",
+   "Sec 4.3 table: CIs are omitted, although paper_numbers.json has them and they are very wide (e.g., Haiku card+Q hidden defects approved 14.3% [0, 35.4]). Add them.",
+   "Sec 4.6: 'roughly halved false alarms or better' does not hold for Opus (3.1% to 2.7%). Qualify it.",
+   "Sec 4.6: 'did not create false reassurance (misses unchanged)' rests on 3/70 vs 3/70 and 0/70 vs 1/70. State the power or the bound instead.",
+   "Exp 7: degenerate runs exist (e.g., s01c1-terse-aligned haiku-low rep 1 approved all 30 items; s01c1-terse-source rep 1 rejected 14). Report run-level failure modes (all-A or all-R runs) in every condition, not only in Exp 6.",
+   "Exp 5: false alarms by queue length are confounded with content (the notebook notes this). If they are mentioned anywhere, label them as such.",
+   "The notebook says a replication on fresh queues (r03 contents) was launched. The paper should either report it or say it is pending, since the headline claims depend on the 11 p-contents.",
+   "Sec 3.3 table: say which displays and styles Exp 4 used (only terse-source per the batch files) and which contents Exp 3 reuses (the same p-contents as v3). Readers need this to see the overlap in items.",
+   "Sec 3.4: 'Querying counted as not approving' is reasonable, but the miss/false-alarm terminology then treats Q as a detection. Report R-only hit rates alongside.",
+   "Multiple comparisons: the paper reports dozens of cells and pulls out the 3/24 Exp 7 cell as 'a hint'. Either pre-specify the confirmatory contrasts, or apply a correction and label everything else exploratory in the text, not only in Limitations.",
+   "Intro: the 94% agreement and 1/141 anecdote come from a different system and decision process. Keep it as motivation, but do not connect it to the reviewer results as if it were comparable data.",
+   "Haiku-low and Haiku share a model, so their reproducibility kappa of 0.92 is not between-model reproducibility. Say so."
+  ],
+  "overclaims": [
+   "\"With the source evidence attached, the reviewers caught every defective proposal\"",
+   "\"no prevalence effect (same defects at 3% and 33% prevalence), no effect of persuasive or misquoting justifications, and no vigilance decrement up to 150-item queues\"",
+   "\"the difference was transcription slips, not judgement\"",
+   "\"Without the evidence, safety depended on the interface, not the model.\"",
+   "\"moves approval of unverifiable proposals by up to 69 points, more than the choice of model\"",
+   "\"no prevalence effect, no persuasion effect, no vigilance decrement in 1,432 defect judgments\"",
+   "\"This is the opposite of what inspection science predicts for humans\"",
+   "\"Reviewer models agree poorly with each other where the evidence is missing (Cohen's \u03ba 0.38\u20130.45 for pairs involving Sonnet)\"",
+   "\"Without a query option, every reviewer approved the majority of unverifiable proposals\"",
+   "\"In inspection terms, the reviewer's criterion, not its sensitivity, determined outcomes, and the decision set moved the criterion more than the model did.\"",
+   "\"(Haiku at low effort: 12.2% to 0.2% of clean correct items held back) at no cost in detection\"",
+   "\"With the evidence attached, escapes per 1,000 proposals were indistinguishable from zero for every reviewer.\"",
+   "\"attaching the evidence removed all of them in our data\"",
+   "\"In our data that alone took misses from tens of percent to zero.\"",
+   "\"its misses leaned toward the rare-defect queues\"",
+   "\"With the later-email block present, Sonnet's false alarms rose to 17.8%: the extra context made it suspicious of correct proposals\"",
+   "\"When the evidence was in front of them, LLM reviewers in our study behaved like ideal inspectors\""
+  ],
+  "numbers_to_check": [
+   "Sec 4.7 escapes: from paper_numbers.json, Sonnet card+Q (26+0)/70 x 50 = 18.6 per 1,000, but the paper says 17. Haiku (6+0)/70 x 50 = 4.3 (paper: 3). Opus (5+0)/70 x 50 = 3.6 (paper: 3). The forced-choice range of 16.4-22.9 matches '16\u201323'.",
+   "Sec 4.2 '(0/216)' for 90- and 150-item queues: exp5 counts give 4 x (18+30) = 192; 216 includes the 30-item queues.",
+   "1,432 = 704 (v3) + 280 (Exp 3) + 232 (Exp 4) + 216 (Exp 5) checks out. But Exp 3 reuses the same 35 p-content defects as v3, so the unique defective items number about 82.",
+   "Runs 252+336+200+160+176 = 1,124 and decisions 7,560+10,080+6,000+9,120+5,280 = 38,040 match paper_numbers.json.",
+   "Sec 4.3 Haiku forced correct approved 49.2% is below 50%, so 'majority' is wrong for this cell.",
+   "Sec 4.1: 17.0% = 30/176 [9.8, 26.1] matches. The '0.0%' numbered rate has no valid CI (json lo = hi = 0).",
+   "Sec 4.4: 12.2%/7.4%/3.7%/0.7% to 0.2%/1.3%/1.1%/0.0% match false_alarms_clean (n=460 per cell).",
+   "Sec 4.5 kappas match the gage block, but they are binary (reject = R or Q), pooled over all three displays on 540 items per reviewer, not restricted to the card view.",
+   "Sec 4.6: Exp 7 'false alarms' use n=590 (all correct items), not the clean-only n=460 definition used in Sec 4.4.",
+   "Sec 4.6: haiku-low 3/24, 0/36, 3/80 match exp7_by_prev. The three 1-per-30 misses fall on different contents (s01c0 pos 21, s01c1 pos 26, s01c4 pos 24), so they are not one item.",
+   "Abstract (3): 'Sonnet approved 71%' refers to correct items (70.7%); for hidden defects it is 61.9%. Specify which.",
+   "Exp 4 never-defective false alarms (haiku-low 18% / 14% / 0%; haiku 18% / 10% / 12.5%) are in paper_numbers.json but absent from the paper."
+  ]
+ },
+ {
+  "verdict": "major revision",
+  "major_issues": [
+   {
+    "issue": "The AI-control framing doesn't match the threat model that was tested. The paper calls the reviewer a 'trusted monitor' [Greenblatt et al. 2023] and says the work fills a gap in that literature: 'These works assume or estimate a monitor's error profile; we measure it with inspection-science tools, in the non-adversarial setting where the agent is honest but wrong.' In AI control the monitor exists because the policy may be scheming. Its quality is judged by safety versus usefulness at a fixed audit budget (for example 1-2% FPR) against a red-team attack policy. Here nothing is adversarial. The 'persuasive' text is the same for good and bad items. The 'misquote' is a fixed template. No attacker adapts to the monitor. A control reviewer will say the results tell us nothing about trusted monitoring.",
+    "where": "Abstract ('a \"trusted monitor\"'); Sec. 1 para 2; Sec. 2 'AI control and monitors'",
+    "fix": "Reframe as non-adversarial review quality: a human-in-the-loop or LLM approver for honest-but-error-prone agents. Mention AI control as adjacent work, not as the field this contributes to. If the control framing stays, add an adversarial condition: an attack policy (an LLM writing proposals and justifications to get a specific wrong value approved, iterated against the monitor). Report safety and usefulness at a fixed audit budget."
+   },
+   {
+    "issue": "No agent produced the proposals. A seeded Python generator wrote both the 'agent's mistakes' and their justifications (inspection.py make_content / make_item, six hand-designed defect templates). Sentences like 'does the reviewer actually catch the agent's mistakes?' and 'safety depended on the interface' therefore describe reactions to six synthetic perturbation types. The paper never shows these resemble real agent errors. Its own motivating error (a misfiled project, 1 of 141) is not shown to be one of the templates.",
+    "where": "Sec. 1; Sec. 3.1; Abstract",
+    "fix": "Say plainly in the abstract and Sec. 3.1 that the proposals are synthetic perturbations, not agent outputs. Better: generate queues with a real LLM agent (for example the Study 1 agents) over the same email world. Label its actual errors and report the defect taxonomy found against the seeded one."
+   },
+   {
+    "issue": "Detection is at ceiling by construction, so the null results on prevalence, persuasion and vigilance carry little information. The comparison to humans is not apt. Each defect can be checked against one short templated email placed directly under the card. In the 'aligned' display, the generator's own key sentence and a side-by-side 'job in source | project in proposal' line make some defects (sibling_project, wrong_field) almost a string comparison. The sentence 'This is the opposite of what inspection science predicts for humans' compares a ceiling task with human visual-search tasks run near threshold.",
+    "where": "Sec. 4.2; Contribution 3; Abstract (1); Conclusion ('behaved like ideal inspectors')",
+    "fix": "Calibrate difficulty before testing these effects: harder defects, longer and noisier threads, several candidate sources, distractor values. Aim for a baseline miss rate of 10-30%, then test prevalence, persuasion and length. Until then, state the result as 'no misses on single-source-verifiable templated defects'. Drop the human comparison and 'ideal inspectors'."
+   },
+   {
+    "issue": "The evidence-alignment display is an oracle. It doesn't model a deployable poka-yoke. render_card prints item.key_sentence and item.source_job, which the generator takes from ground truth. A real system would need an extractor (regex or LLM) to find the value-carrying sentence and the job, and that extractor would make its own errors, correlated with the hard cases. 'it costs a few lines of code and no model calls' is therefore unsupported. So is 'at no cost in detection': detection was already 100% without alignment, so no cost could have been measured.",
+    "where": "Sec. 3.2 'aligned'; Sec. 4.4; Discussion point 2; Abstract (4)",
+    "fix": "Build the alignment with a realistic extractor that doesn't read the answer key. Report its error rate, and include cases where it points to the wrong sentence. Exp 7 is a start but uses a separate, clearly labelled block of later emails. Remove 'at no cost in detection' or reword it as 'detection was at ceiling in both displays'."
+   },
+   {
+    "issue": "The interface-versus-model claim is stronger than the paper's own table allows. The abstract says 'safety depended on the interface, not the model' and Contribution 4 says the interface moves approval 'by up to 69 points, more than the choice of model.' Under A/R/Q, the model alone moves approval of correct unverifiable items from 3.6% (haiku-low) to 70.7% (Sonnet), about 67 points, and of hidden defects from 2.4% to 61.9%. That is the same size as the interface effect. Both factors matter, and they interact.",
+    "where": "Abstract (3); Contribution 4; Sec. 4.3 last sentence",
+    "fix": "Report a two-way decomposition (model \u00d7 decision set) with cluster-bootstrapped CIs, or a logistic model with an interaction term. Restate as: 'both the decision set and the model shift the criterion by similar amounts; the decision set did so for every model.'"
+   },
+   {
+    "issue": "The card-only and forced-choice results rest on very few independent units, and the table hides this. Each cell is 11 queue contents \u00d7 2 styles = 22 runs. The 42 'hidden-defect judgments' are about 21 unique defects, each seen twice (terse and persuasive). paper_numbers.json shows very wide CIs that the paper doesn't print: Haiku card good_approved 7.5% has CI [0, 19.1]; Haiku forced invisible_defects_approved 54.8% has CI [28, 69]. Haiku's forced-choice behaviour is bimodal (10 of 22 runs rejected everything), so per-item means describe neither mode.",
+    "where": "Sec. 4.3 table; Sec. 4.7; Abstract (3)",
+    "fix": "Print run-clustered CIs in every table. Give the effective n (unique queue contents and unique defects). Show per-run distributions for the forced condition (histogram of the approve fraction per run). Add contents until the CIs separate the effects being claimed."
+   },
+   {
+    "issue": "The findings may not generalize beyond Claude Code subagents, and the setup has confounds that probably bias toward caution. Reviewers ran inside the Claude Code harness with its system prompt and tools, at unstated temperature and model versions. The queue header says 'all data fictional'. Effort was set by an unspecified mechanism. Generator, stimuli and reviewers all come from one model family, and the stimuli were built with Claude. The Query rate in particular (Haiku/Opus querying 77-95%) may be shaped by the harness's caution and by the absence of stakes. Deployed trusted monitors usually output a 0-10 suspicion score per action in a fresh context, not a 30-item batch of A/R/Q letters.",
+    "where": "Sec. 3.2 'Reviewer'; Sec. 6 bullet 2; Discussion guidance 5",
+    "fix": "Replicate the key conditions (card A/R/Q vs forced; source; output format) through the bare API with fixed temperature and exact model IDs, and with at least one non-Claude family. Add a per-item, fresh-context condition that elicits a numeric suspicion score. Report AUROC and TPR at fixed FPR so the results connect to control-style monitoring. Remove 'all data fictional' from the reviewer prompt in one arm."
+   },
+   {
+    "issue": "The 17%-to-0% 'output channel' finding is presented as a new measurement-system result. It is a known parsing and format-sensitivity artifact, and the v2/v3 comparison doesn't isolate format. v2 and v3 were separate run sets (v3 also added Opus and validated schema output). The shift diagnosis rests on 8 of 56 runs fitting better after an offset. Format effects on LLM outputs, and position errors in long letter strings, are documented in the LLM-as-judge and structured-output literature.",
+    "where": "Sec. 4.1; Contribution 2; Abstract (2)",
+    "fix": "Run a clean within-run manipulation on identical queues with randomized order: the same prompt with string output vs numbered output, several reps. Report the share of misses explained by alignment offsets, with a pre-specified rule. Cite the format-restriction and position-bias work and present the result as a confirmation in a monitoring setting, not a discovery."
+   },
+   {
+    "issue": "Gage R&R is used loosely. Repeatability is based on only 2 trials. \u03ba pools card and evidence views with very different base rates (the paper admits agreement with the key is 'low overall \u2026 because it pools the card view'). Unit-level dependence (30 items in one context) is ignored. Opus's repeatability of 0.58 would fail standard attribute-MSA acceptance and isn't discussed. Calling this an MSA 'of LLM reviewers' implies a formal AIAG attribute study it doesn't satisfy.",
+    "where": "Sec. 3.4; Sec. 4.5; Discussion guidance 4",
+    "fix": "Report \u03ba separately for each display and decision set. Use at least 3 trials, Fleiss' \u03ba, and the AIAG attribute-study statistics (effectiveness, miss rate, false-alarm rate against the standard) with CIs. Discuss what Opus's 0.58 means for single-run monitoring decisions."
+   },
+   {
+    "issue": "The related work misses the closest prior work, so the novelty claims ('To our knowledge, these tools have not been applied systematically'; 'We did not find prior work treating an LLM reviewer as a measurement system') are unsupported. Missing: LLM monitors and judges of agent trajectories and actions (R-Judge, ToolEmu's safety evaluator, AgentMonitor, LlamaFirewall/AlignmentCheck, GuardAgent/ShieldAgent); control monitor evaluations (SHADE-Arena, Ctrl-Z resampling, Adaptive Deployment of Untrusted LLMs, Games for AI Control, CoT monitoring by Baker et al. 2025, async monitoring); LLM critics finding errors (Saunders et al. 2022 self-critique, McAleese et al. 2024 CriticGPT); LLM-judge bias and format (Zheng et al. 2023, Wang et al. 2023 'not fair evaluators', Tam et al. 2024 format restrictions); abstention and forced choice (selective prediction, AbstentionBench); long-context position effects in place of 'vigilance' (Liu et al. 2023 'Lost in the Middle'); and human automation bias and oversight rubber-stamping (Parasuraman & Manzey 2010; Green 2022). The SDT-for-AI-oversight claim has no citation. Several citations are placeholders ('[2026]', '[e.g. 2606.19544]', ControlArena without authors or year).",
+    "where": "Sec. 1 para 3; Sec. 2",
+    "fix": "Add and engage with the works above, especially the forced-choice vs abstention results, which predict finding (3). Narrow the novelty claim to 'combining these inspection tools in one testbed for agent approval queues'. Complete every citation with authors, title and venue."
+   },
+   {
+    "issue": "The acceptance-sampling argument in Sec. 4.7 is a strawman and misuses AOQ. 'A 10% random audit by a perfect second reviewer removes only 10% of those escapes' is arithmetic, not a finding. Comparing it with 'attaching the evidence removed all of them in our data' sets an unrealistic sampling plan against an oracle-friendly display. AOQ/AOQL concern rectifying inspection of lots and aren't calculated here.",
+    "where": "Sec. 4.7; Discussion",
+    "fix": "Either do a real sampling analysis (OC curve and AOQL for plausible audit plans, using the measured per-reviewer miss rates and their CIs, including the forced-choice upper bounds) or drop the acceptance-sampling vocabulary and keep only the escape-rate projection with its assumptions."
+   }
+  ],
+  "minor_issues": [
+   "Sec. 5 guidance 5 says 'the more capable Sonnet approved far more than Haiku or Opus'. Sonnet is not more capable than Opus. Rephrase as 'Sonnet, mid-tier'.",
+   "No exact model IDs, effort mechanism, temperature or harness version are given for any reviewer. Appendix A names Haiku 5.5 and Sonnet 5.5 for Study 1 but Study 2 names no versions.",
+   "Sender domains are random vendors on correct items (e.g., E-3001 about a Bluegill job comes from saltmarsh-controls.example). That is a cue a reviewer could reasonably be suspicious of, and it may inflate false alarms in a way the 'clean' flag doesn't control.",
+   "The 30 decisions are made in one context, so items aren't independent. Sonnet's Exp 7 rise in false alarms ('suspicious of correct proposals for the same jobs and others alike') is cross-item contamination. Say so, and test per-item contexts.",
+   "'Vigilance decrement' is a human fatigue construct. For LLMs, measure position-in-context effects (miss and false-alarm rates by item position) and test far longer contexts than 150 short items.",
+   "Exp 5 design line '30, 90, 150 items at ~3% \u00d7 4 \u00d7 2 reps = 72 runs' doesn't multiply to 72 (it gives 24). State the number of contents per length.",
+   "PROGRESS.md notes that Exp 5 false alarms fall with length but 'the 30-item contents differ from the long ones'. The confound is real, and Sec. 6 should state it for Exp 5 as well as Exp 1-3.",
+   "The ProjectTracker anecdote (94% agreement, 1 of 141 misfiled) is unverifiable and not linked to any condition. Either connect it to a specific condition (what the screen showed) or shorten it.",
+   "The [MAXI: ...] placeholders and 'Draft written overnight' / 'designed, run and written in one night' will hurt credibility with reviewers. Remove them, and add a pre-registration or analysis-plan note saying which analyses were chosen after seeing the data (e.g., the 'clean' false-alarm split was added after the results).",
+   "The abstract's \u03ba statement ('so the choice of monitor model, not its detection ability, decides what passes') infers cause from agreement. Low \u03ba alone doesn't show whether criterion or sensitivity is responsible. Report d\u2032 and c per reviewer in the card condition.",
+   "The d\u2032 log-linear correction is applied when hit rates are 100%. d\u2032 at ceiling is set by the correction, not the data, so don't report or interpret it there.",
+   "Figure paths point into the repo (inspection/figures/...). Make sure the figures have captions with n and CIs."
+  ],
+  "overclaims": [
+   "\"Without the evidence, safety depended on the interface, not the model.\"",
+   "\"an interface detail (whether the reviewer can defer) moves approval of unverifiable proposals by up to 69 points, more than the choice of model.\"",
+   "\"Evidence that, for these reviewers, detection is not the bottleneck when the evidence is attached\"",
+   "\"This is the opposite of what inspection science predicts for humans\"",
+   "\"When the evidence was in front of them, LLM reviewers in our study behaved like ideal inspectors\"",
+   "\"Evidence alignment (a poka-yoke display) removed most false alarms of cautious reviewers ... at no cost in detection.\"",
+   "\"it costs a few lines of code and no model calls.\"",
+   "\"Attach the evidence to the proposal. In our data that alone took misses from tens of percent to zero.\"",
+   "\"the difference was transcription slips, not judgement.\"",
+   "\"To our knowledge, these tools have not been applied systematically to LLM reviewers of agent actions.\"",
+   "\"and it again roughly halved false alarms or better.\" (Opus 3.1% -> 2.7% is not halved)",
+   "\"improving the inspection station beats adding a sampling plan.\"",
+   "\"so the choice of monitor model, not its detection ability, decides what passes.\""
+  ],
+  "numbers_to_check": [
+   "Run totals: 252+336+88+112+72+88+176 = 1,124. This matches paper_numbers.json (v2 252, v3 336, exp34 200, exp56 160, exp7 176). Decisions 7,560+10,080+6,000+9,120+5,280 = 38,040. Exp 5 at 72 runs is inconsistent with the stated 3 lengths \u00d7 4 reviewers \u00d7 2 reps = 24.",
+   "1,432 evidence defect judgments: check that the parts add up. PROGRESS gives 704 (v3) + 280 (Exp 3) + 232 (Exp 4) + 216 (Exp 5) = 1,432. Rule-of-three bound 3/1432 = 0.21%: OK.",
+   "Contribution 4 '69 points': Opus 19.8% -> 88.5% = 68.7. Compare with the model spread under A/R/Q (3.6% -> 70.7% = 67.1), which undercuts 'more than the choice of model'.",
+   "Sec. 4.3: 'Haiku and Opus mostly queried ... (90\u201395% and 77% of correct items)'. The JSON gives haiku-low 95.3% and haiku 90.5% queried. Verify Opus 77%, and that 19.8% approved + 77% queried leaves only about 3% rejected.",
+   "Abstract 'Opus ... let through 71% of defects it could not see' = 71.4% of 42 judgments, about 21 unique defects. The CI isn't reported.",
+   "Abstract 'Sonnet approved 71% of them': this is correct-but-unverifiable items (70.7%). For hidden defects the figure is 61.9%. Make sure the abstract says which.",
+   "Sec. 4.1 Sonnet 17.0% [9.8, 26.1] with n = 176: matches JSON (0.1705; 0.098-0.261). Haiku 2.8% matches. Haiku-low string 1.1% isn't mentioned.",
+   "Sec. 4.6: haiku-low 6 misses of 140; per-prevalence split 3/24 + 0/36 + 3/80 = 6/140: OK. Check that n = 70 per cell matches 1+3+10 superseded \u00d7 ~5 contents \u00d7 2 reps.",
+   "Sec. 4.7 escape projections (17 per 1,000 for Sonnet, 3 for Haiku/Opus, 16-23 forced): recompute from pooled miss rates \u00d7 5% defect rate. Sonnet's pooled card miss rate would need to be about 34%, which is consistent with PROGRESS ('34% of defects') but not with the table's 61.9% on hidden defects. Clarify which pool is used.",
+   "Sec. 4.4 false alarms on clean items (12.2/7.4/3.7/0.7 -> 0.2/1.3/1.1/0.0): give n and CIs, and confirm they come from v3 only.",
+   "Sec. 4.5 \u03ba values (repeatability 0.80/0.71/0.73/0.58; Sonnet pairs 0.38-0.45): state which conditions and how many queue pairs each is computed on.",
+   "Sec. 1 '39% of correct proposals carry a legitimate reason to hesitate': PROGRESS gives a cue breakdown of 10/16/18%. Check the 39% union against the current generator, which was rewritten after the pilot."
+  ]
+ },
+ {
+  "verdict": "major revision",
+  "major_issues": [
+   {
+    "issue": "The prevalence-effect test cannot work on these stimuli. In Wolfe et al. (2005) the effect appears when targets are hard to tell apart from non-targets and when observers learn the base rate over many trials in sequence. Here every evidence-condition defect can be resolved by string comparison against one short email. `near_value` is the email's own date shifted 1-3 days, `stale_value` puts both dates in one sentence ('not X as I wrote earlier'), and `unsupported` says 'I still need to confirm'. So effective sensitivity is close to perfect. The reviewer also sees all 30 items at once, with no learning phase, no feedback and no stated base rate. A miss rate stuck at 0 is the expected result for any inspector, human or model, so it cannot show that prevalence is 'opposite of what inspection science predicts'.",
+    "where": "\u00a74.2 'We therefore find no prevalence effect, no persuasion effect and no vigilance decrement ... This is the opposite of what inspection science predicts for humans'; Abstract (1); Contribution 3; \u00a75 'Why no prevalence effect?'",
+    "fix": "Drop 'opposite of what inspection science predicts'. Restate as 'no prevalence effect on misses was detectable at ceiling sensitivity (d\u2032 not estimable)'. To actually test prevalence, use conditions where sensitivity is finite: the card view with A/R/Q, the forced A/R view, Exp 7, or defects calibrated to give 70-90% detection in a pilot (e.g. \u00b11 day on a yearless ordinal date, or relative shifts that need arithmetic). Then report hit rate, false-alarm rate and c by prevalence. Also add a base-rate learning step, e.g. show a history of N prior approved queues, or say 'historically ~1 in 100 proposals is wrong' versus '1 in 3'."
+   },
+   {
+    "issue": "The paper reports only miss rates for prevalence, but its own Exp 4 data show a prevalence effect on the criterion. On the same never-defective items, Haiku-low's false alarms fall from 18.0% (n=400) at 1/30 to 14.2% at 3/30 and 0% (n=40) at 10/30. Haiku goes 18.3% \u2192 10% \u2192 12.5%. Inside a fixed-item design, that is a criterion shift that tracks prevalence. It runs opposite to the human pattern, where rare targets make observers more liberal. The PROGRESS log flags it at 23:05 ('needs a cue-controlled check'), but the paper leaves it out and claims 'no prevalence effect' outright.",
+    "where": "Abstract (1) 'with no prevalence effect'; \u00a74.2; \u00a75",
+    "fix": "Report hit rate, false-alarm rate and c by prevalence for Exp 4. Restrict the 'no prevalence effect' claim to misses. Discuss the false-alarm trend as a candidate prevalence effect on the criterion, and do the cue-controlled check (clean versus cued never-defective items) before interpreting it. In SDT terms this is the only prevalence signal the study has."
+   },
+   {
+    "issue": "SDT is announced but not used. \u00a73.4 says d\u2032 and c are computed with the log-linear correction, but no d\u2032 or c appears anywhere in the results. With 0 misses, d\u2032 is fixed by the correction term (Hautus 1995) and is not a measurement. Where the paper does argue in SDT terms ('the reviewer's criterion, not its sensitivity, determined outcomes'), the conclusion is true by construction: hidden defects are designed to be invisible, so d\u2032\u22480 and any outcome is criterion. The A/R/Q response is also collapsed to a binary 'reject = R or Q', which throws away the natural ordering that SDT is built to use.",
+    "where": "\u00a73.4; \u00a74.3 'In inspection terms, the reviewer's criterion, not its sensitivity, determined outcomes'",
+    "fix": "Treat A > Q > R as a three-level rating scale. Estimate a 2-point ROC per reviewer and display with two criteria (c_A/Q, c_Q/R). Report d\u2032 and c with CIs for the card and forced cells, where neither is at ceiling. For hidden defects, show d\u2032 (hidden defects versus correct items) \u2248 0 for each reviewer, e.g. Sonnet 61.9% versus 70.7% approved, Haiku 14.3% versus 7.5%. Then state the finding as 'with d\u2032\u22480 by design, the decision set moved c by X units, more than model choice moved it'. In evidence cells, report only the miss upper bound and do not report d\u2032."
+   },
+   {
+    "issue": "'Gage R&R' is misapplied and its results are misread. (a) The kappas pool all three displays plus the card view. In MSA the display/method is part of the gauge, so pooling mixes three different measurement systems. The claim 'Disagreement concentrates where evidence is missing' has no per-display breakdown behind it, and `agreement()` in inspection_analysis.py computes none. (b) Q is coded as reject, and the card view is scored against a binary key. Under the queue's own instruction (A = 'supported by its source email'), a correct card-only item is not verifiably supported, so the 'standard' is wrong for those cells. That is why kappa versus standard ranks Sonnet best (0.62) and Haiku-low worst (0.24), the reverse of the paper's own safety ranking. (c) Different models are different gauges, not different appraisers on one gauge, so 'reproducibility' here is gauge-to-gauge comparison. (d) AIAG attribute studies call for marginal parts near the specification limit. Here the parts are either trivial (evidence shown) or impossible (hidden). (e) Opus has the worst repeatability (\u03ba 0.58, 81% agreement), which is below common attribute-MSA acceptance guidance (\u03ba \u2265 0.75), yet the paper recommends it implicitly and never comments on this.",
+    "where": "\u00a73.4 Gage R&R definition; \u00a74.5; Abstract (5); Contribution 2",
+    "fix": "Call it 'attribute agreement analysis (AIAG MSA)'. Compute within-appraiser, between-appraiser and appraiser-versus-standard agreement separately per display, on the 3-category response (Fleiss/Cohen kappa for nominal A/R/Q, or weighted kappa). Define the card-view standard as Q (or as 'not A') for items whose defect or correctness can't be seen from the card. Report AIAG effectiveness, miss rate and false-alarm rate against the usual acceptance guidance (\u226590%, \u22642%, \u22645%) and say which reviewers fail; e.g. Haiku-low's 12.2% clean false alarms with the source shown fails. State explicitly that Opus's repeatability is marginal. Add marginal parts to the study set."
+   },
+   {
+    "issue": "The output-channel MSA finding is overstated. The abstract says 'the difference was transcription slips, not judgement'. The evidence is that in 8 of 56 runs a shifted string fitted the key better. Fitting to the answer key is circular, it is not shown that realigning those 8 runs accounts for all ~30 of Sonnet's misses (17.0% of 176), and v2 and v3 are separate stochastic runs, not re-reads of the same outputs. False alarms also changed between formats (Sonnet 4.3% \u2192 1.0%; Haiku-low 5.1% \u2192 10.2%), which a pure positional shift does not predict in that direction.",
+    "where": "Abstract (2); \u00a74.1 'it judged correctly and wrote the letter in the wrong place'; Contribution 2; \u00a75 item 4",
+    "fix": "Report how many of Sonnet's 30 v2 misses fall in the 8 shifted runs, and its miss rate on the other 48 runs. Rescore the shifted runs after realignment with a shift chosen by a rule that doesn't use the key (e.g. string length \u2260 30, or a duplicated or dropped letter at a detectable point). Better: rerun v2 asking for both the string and per-item reasons, and score their consistency. Reword to 'mostly attributable to positional transcription errors'."
+   },
+   {
+    "issue": "Calling the evidence alignment 'poka-yoke' is a misnomer, and the recommendation contradicts the data. Shingo's poka-yoke is a device that prevents an error or detects it automatically and stops the process (control or warning type, contact/fixed-value/motion-step), so it does not depend on the inspector's attention. The alignment is a judgment aid, a visual comparison that a human or model still has to judge. It also had no measurable effect on defect detection, which was at ceiling with or without it. Its only measured effect was on false alarms. Yet Design guidance 2 reads 'Make the defect visible (poka-yoke)', and the abstract calls it 'a poka-yoke display'. The generator already computes the comparison a real poka-yoke would apply (`job in source` versus `project in proposal`, sentence value versus proposed value), so a true fixed-value poka-yoke could have been tested at no cost.",
+    "where": "Abstract (4); \u00a73.2 aligned display; \u00a74.4; \u00a74.6 'whether a poka-yoke display can create false reassurance'; \u00a75 guidance 2",
+    "fix": "Rename it 'evidence-alignment display (an inspection/judgment aid)' and say it reduced false alarms, not that it made defects visible. Add a real poka-yoke arm: a deterministic check that blocks or flags proposals where the source job \u2260 proposal job, the field \u2260 the source field, or the value is not a substring of / computable from the key sentence. Report how many of the six defect types it catches with no reviewer at all. Shingo's distinction between source inspection and judgment inspection also maps directly onto agent self-check versus reviewer check, and is worth using."
+   },
+   {
+    "issue": "Calling the queue-length test a 'vigilance decrement' test is a construct mismatch. Mackworth's decrement is about sustained attention over time on task, with rare, near-threshold signals, typically emerging within 30 minutes. An LLM reading a 150-item file in one forward context has no time-on-task. The relevant construct is context length or serial position. Exp 5 also has only 1, 3 or 5 defects per queue at random positions (54 defect judgments per reviewer), does no serial-position analysis, and the 30-item contents differ from the long ones.",
+    "where": "Abstract (1) 'no vigilance decrement up to 150-item queues'; \u00a74.2; \u00a73.3 Exp 5",
+    "fix": "Rename it 'queue-length / serial-position effect (the LLM analogue of vigilance decrement)'. Put the same defective items at controlled positions (early, middle, last decile) in 30/90/150-item queues, as Exp 4 did for prevalence. Report miss and false-alarm rates by position decile. Push length until the context is long enough that decrement is plausible (e.g. 500-1,000 items), or state the token length tested."
+   },
+   {
+    "issue": "Acceptance sampling is named but not applied. A '10% random audit by a perfect second reviewer' is not an acceptance-sampling plan: it has no lot, no sample size n, no acceptance number c and no rectifying rule. 'Removes only 10% of those escapes' is a restatement of the model in `oc_two_stage`, not a finding. AOQ/AOQL is cited (Dodge & Romig, ISO 2859) and listed in the PROGRESS plan, but never computed. More importantly, escapes here are not random: they are concentrated in card-only, unverifiable items, which breaks the random-sampling assumption, and a stratified audit would beat random sampling.",
+    "where": "\u00a74.7 'in acceptance-sampling terms, improving the inspection station beats adding a sampling plan'; Related work",
+    "fix": "Treat each queue (N=30) as a lot. Give the OC curve and AOQ = p\u00b7Pa\u00b7(N\u2212n)/N for a concrete plan (e.g. n=3 or 5, c=0, with 100% screening of rejected lots), using the measured post-review defect rates, and report AOQL. Then contrast it with a stratified audit of approvals the reviewer could not verify. Otherwise drop the acceptance-sampling label and say 'a 10% random audit'. Also note that the escape rates depend on the generator's 42:28 mix of hidden to visible defects, so they are not portable to other queues."
+   },
+   {
+    "issue": "Effective sample size is inflated, so the upper bound on misses is too tight. The 1,432 defect judgments come from about 80 unique defective items. Exp 1 v3 and Exp 3 reuse the same 35 defective items across styles, displays and reviewers; Exp 4 re-embeds 20 items at three prevalences; Exp 5 has 27. They are also clustered by run. The rule-of-three bound of 0.2% treats all 1,432 as independent Bernoulli trials.",
+    "where": "\u00a74.2 'approved none (rule-of-three upper bound 0.2%)'; Abstract (1); Conclusion 'no misses across 1,432 defect judgments'",
+    "fix": "Report the number of unique defective items per defect type and an upper bound based on items, e.g. 3/80 \u2248 4% per reviewer-agnostic item, or a cluster-adjusted bound. Phrase the result as 'no misses on N unique defects \u00d7 4 reviewers'."
+   },
+   {
+    "issue": "Stimulus validity: the scoring rule conflicts with the reviewer's instructions. In Exp 7 a superseded card is, by construction, 'supported by its source email', which is the header's literal definition of A. Approving it is therefore defensible under the instructions, and its misses mix instruction ambiguity with failure to integrate the later email. In the card and forced views, the header's R is defined as 'the source does not support it'. Rejecting every unverifiable item, as Haiku did in 10 of 22 forced runs, is therefore compliant behaviour, not a 'bimodal' anomaly. Its 49.2% 'correct approved' is the mean of a bimodal distribution and misrepresents both modes. The superseding message is also very salient ('please disregard the date I sent', in a \u226414-line block at the top), so Exp 7 tests a lookup more than evidence integration. Block length (10 versus 14 messages) is confounded with prevalence.",
+    "where": "\u00a73.3/\u00a74.6 Exp 7; \u00a74.3 'Haiku became bimodal'; HEADER and FORCED_HEADER in inspection.py",
+    "fix": "Change A to 'correct given all information shown, including later emails' and rerun Exp 7, or report Exp 7 misses as 'approved under the old instruction'. For forced Haiku, report the run-level distribution (share of runs that reject everything, and the approve rate in the other runs) instead of a pooled mean. Make the superseding wording less explicit in some items (e.g. 'the 18th works better for us' with no 'disregard'), and keep block length constant across prevalence levels."
+   },
+   {
+    "issue": "The persuasion test is weak and reported only where it cannot show anything. The persuasive justification is identical for good and bad items, so in SDT terms it can only move the criterion. Its effect should therefore be measured on false alarms and in the criterion-driven card view, not on evidence-view misses at ceiling. The paper's own EXTRA.md shows unreported heterogeneity in false alarms by justification (Opus 6.3% terse \u2192 10.2% persuasive \u2192 13.1% misquote; Haiku-low 13.4% \u2192 8.1% \u2192 3.4%).",
+    "where": "Abstract (1) 'no effect of persuasive or misquoting justifications'; \u00a74.2",
+    "fix": "Report terse versus persuasive approval rates in the card-with-query and forced views (where c is free to move), and false-alarm rates by justification in Exp 3, with CIs. Limit the 'no persuasion effect' claim to misses with the evidence shown."
+   }
+  ],
+  "minor_issues": [
+   "The \u00a74.3 table gives point estimates with no CIs, but the hidden-defect cells have n=42 (21 unique items \u00d7 2 styles) and very wide intervals (Haiku 0\u201335%, Opus 0\u201327%, Haiku-low forced 47\u201378%). Add the CIs from paper_numbers.json to the table.",
+   "Card-with-query cells use rep 0 of v3 runs, and forced cells come from separate Exp 6 runs on another occasion. Say that the Q-versus-forced comparison is between sessions, and cite the replication (r03c*) that PROGRESS mentions, or remove the claim that it exists.",
+   "'A miss is an approved defect; a false alarm is a correct proposal not approved (rejected or queried)': counting Q as a signal response in SDT treats a hold as a rejection. Report false alarms as false R and false Q separately in every table, not only in the text.",
+   "Gage R&R repeatability n=540 comes only from the p=3 contents (18 batch pairs). State that, and that it pools all displays.",
+   "Contribution 4 says the interface moves approval 'by up to 69 points, more than the choice of model'. With the query option, the range across models is 3.6% to 70.7% (67 points), so the difference is negligible. Say 'about as much as'.",
+   "Design guidance 1, 'took misses from tens of percent to zero': in the card view with A/R/Q, pooled misses were 1.4\u20138.6% for Haiku-low, Haiku and Opus. Tens of percent applies only to Sonnet and to the forced view. Qualify it.",
+   "\u00a72 cites 'SDT has been proposed as a framework for AI oversight' with no reference. Add the citation or remove the sentence.",
+   "The 'clean' item flag (cues: conflict, yearless, relative) is defined after seeing reviewer behaviour (PROGRESS 22:50). Say the classification was post hoc.",
+   "In acceptance-sampling terms, the 1/141 anecdote in the Introduction is the observed outgoing defect rate of a human inspector with no reported incoming defect rate. Don't present it as a miss rate.",
+   "Haiku-low versus Haiku \u03ba=0.92 is the same model at two effort settings, so it is closer to a repeatability check than to reproducibility between appraisers. Label it that way."
+  ],
+  "overclaims": [
+   "\"This is the opposite of what inspection science predicts for humans\"",
+   "\"with no prevalence effect (same defects at 3% and 33% prevalence)\"",
+   "\"no effect of persuasive or misquoting justifications, and no vigilance decrement up to 150-item queues\"",
+   "\"the difference was transcription slips, not judgement\"",
+   "\"Sonnet's string fitted the answer key better after shifting one or two positions: it judged correctly and wrote the letter in the wrong place\"",
+   "\"Evidence alignment (a poka-yoke display) removed most false alarms of cautious reviewers ... at no cost in detection\"",
+   "\"Make the defect visible (poka-yoke). Aligning the source sentence with the proposed value removed most false alarms\"",
+   "\"In our data that alone took misses from tens of percent to zero.\"",
+   "\"moves approval of unverifiable proposals by up to 69 points, more than the choice of model\"",
+   "\"Disagreement concentrates where evidence is missing: that is where the choice of monitor matters.\"",
+   "\"in acceptance-sampling terms, improving the inspection station beats adding a sampling plan\"",
+   "\"LLM reviewers in our study behaved like ideal inspectors\"",
+   "\"approved none (rule-of-three upper bound 0.2%)\"",
+   "\"The alignment to the stale source did not create false reassurance (misses unchanged)\""
+  ],
+  "numbers_to_check": [
+   "\u00a74.7 Sonnet card-with-query escapes 'about 17 per 1,000': from paper_numbers.json, (0.619\u00d742 + 0\u00d728)/70 = 37.1% pooled miss \u00d7 5% = 18.6 per 1,000. Haiku: 8.6% \u2192 4.3 (paper says 3). Opus: 7.1% \u2192 3.6 (paper says 3). Check which pooling was used.",
+   "Rule-of-three bound '0.2%' on 1,432 judgments: these are about 80 unique defective items (35 shared by Exp 1 v3 and Exp 3, 20 in Exp 4, 27 in Exp 5), not 1,432 independent trials.",
+   "\u00a74.1: 8 of 56 shifted Sonnet runs versus 30 misses (17.0% of 176). Confirm how many misses fall in those 8 runs.",
+   "\u00a74.4 'Opus 3.7% \u2192 1.1%': in paper_numbers, clean false alarms are source 0.037 and aligned 0.0109, consistent. But cued-item false alarms for Opus remain 8.9% aligned, which the text omits.",
+   "\u00a74.5 'Agreement with the answer key ... \u03ba 0.24\u20130.62': Sonnet scores highest (0.62), the reverse of the paper's safety ranking, and this is not discussed.",
+   "\u00a74.3 'Haiku ... 90\u201395% ... of correct items' queried: Haiku 90.5%, Haiku-low 95.3%, consistent. 'Opus 77%' = 77.3%, consistent.",
+   "Exp 4 false alarms on never-defective items: Haiku-low 18.0% (n=400) / 14.2% (n=120) / 0% (n=40). The n=40 cell is 2 base queues \u00d7 20 items \u00d7 1 run, so its CI is effectively uninformative.",
+   "\u00a74.6 Haiku-low Exp 7 misses: 3/24, 0/36, 3/80. A Fisher test of 3/24 versus 3/116 gives p\u22480.07 before any clustering. The 'hint of a prevalence effect' does not reach significance and the pattern is not monotone.",
+   "Abstract (3): 'Opus went from approving 20% ... to 89%' = 19.8% \u2192 88.5%, consistent. The '71% of defects it could not see' figure (71.4%) rests on n=42."
+  ]
+ }
+]

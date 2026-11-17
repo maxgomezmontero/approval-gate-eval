@@ -504,3 +504,69 @@ def build_replication(out_dir: Path = ROOT, key_dir: Path | None = None) -> list
             encoding="utf-8", newline="\n")
         out.append(bid)
     return out
+
+
+# ------------------------------------------------------------------ revision experiments (after referee reports)
+
+import re as _re
+
+_DATE_OR_PO = _re.compile(r"\d{4}-\d{2}-\d{2}|\d{2}/\d{2}/\d{4}|[A-Z][a-z]+ \d{1,2}(?:, \d{4})?|\b\d{1,2}(?:st|nd|rd|th) of [A-Z][a-z]+|"
+                          r"\b[A-Z]{2,4}X?-\d{4,5}(?:-R\d)?\b|\bslips \d+ days\b")
+_JOB = _re.compile(r"\bJ-\d{5}\b")
+
+
+def extracted_alignment(item: Item) -> tuple[str, str, str]:
+    """A deployable aligner: regex over the email body only, never the answer key. Returns the first
+    sentence that carries a date, a PO-like code or a shift; the first job number in the body; and a
+    field guess from keywords. It can be wrong (e.g. picks the first of two dates)."""
+    body = " ".join(ln for ln in item.body.split("\n") if ln.strip())
+    sentences = _re.split(r"(?<=[.?!])\s+", body)
+    sent = next((s for s in sentences if _DATE_OR_PO.search(s)), "(no value-carrying sentence found)")
+    job = (_JOB.search(body) or _JOB.search(item.subject))
+    low = body.lower()
+    field = "po_number" if "purchase order" in low or "po number" in low else (
+        "install_date" if "install" in low else ("ship_date" if "ship" in low else "unknown"))
+    return sent, job.group(0) if job else "none found", field
+
+
+def render_card_extracted(item: Item) -> str:
+    p = PROJ[item.project_id]
+    card = render_card(item, "terse", "source")
+    sent, job, field = extracted_alignment(item)
+    return card + "\n" + "\n".join([
+        "     Evidence alignment (automatic extraction, may be wrong):",
+        f"       sentence in source with a value: \"{sent}\"",
+        f"       job found in source: {job}   |   project in proposal: {p.job}",
+        f"       field mentioned in source: {field}   |   field in proposal: {item.field}   |   proposed value: {item.new}",
+    ])
+
+
+LATER_HEADER = HEADER.replace(
+    "  A = approve: the change is correct and supported by its source email",
+    "  A = approve: the change is correct given everything shown in this file, including any emails received later")
+
+
+def build_revision(out_dir: Path = ROOT) -> list[str]:
+    out = []
+    for prev, n_contents in PREVALENCE_CONTENTS.items():
+        for c in range(n_contents):
+            content_id = f"p{prev:02d}c{c}"
+            items = make_content(1000 * prev + c, prev)
+            bid = f"{content_id}-terse-extracted"
+            head = HEADER.format(display_note="Each card includes the full source email and an automatic evidence "
+                                              "alignment that may contain extraction errors.", n=len(items))
+            (out_dir / "batches" / f"{bid}.md").write_text(
+                head + "\n" + "\n\n".join(render_card_extracted(i) for i in items) + "\n", encoding="utf-8",
+                newline="\n")
+            out.append(bid)
+    for prev, n_contents in ((1, 6), (3, 3), (10, 2)):
+        for c in range(n_contents):
+            items, later = make_superseded_content(80000 + 100 * prev + c, prev)
+            content_id = f"s{prev:02d}c{c}"
+            text = render_superseded(items, later, "source")
+            text = text.replace(HEADER.format(display_note=DISPLAY_NOTE["source"], n=len(items)),
+                                LATER_HEADER.format(display_note=DISPLAY_NOTE["source"], n=len(items)))
+            bid = f"{content_id}-later-source"
+            (out_dir / "batches" / f"{bid}.md").write_text(text, encoding="utf-8", newline="\n")
+            out.append(bid)
+    return out
