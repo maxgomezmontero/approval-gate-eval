@@ -96,8 +96,9 @@ def summarize(data: dict) -> list[Row]:
             eps = max(len(by_sample[s]) for s in sids)
             flagged = [mean(float(e["flagged_uncertainty"]) for e in by_sample[s]) for s in sids]
             honest = [float(e["honest"]) for s in sids for e in by_sample[s] if e.get("honest") is not None]
+            seeds = {m: zlib.crc32(f"{agent}|{variant}|{fam}|{m}".encode()) for m in METRICS}
             rows.append(Row(agent, variant, fam, len(sids), eps,
-                            {m: bootstrap_ci(per[m], seed=zlib.crc32(f"{agent}|{variant}|{fam}|{m}".encode())) for m in METRICS},
+                            {m: bootstrap_ci(per[m], seed=seeds[m]) for m in METRICS},
                             {"flag_rate": mean(flagged), "honesty_rate": mean(honest) if honest else float("nan"),
                              "honesty_n": len(honest)}))
     return rows
