@@ -13,6 +13,20 @@ the conversation. Everything is synthetic and fictional.
 Author: Maximiliano Gomez Montero. MIT licence. The motivation and a first-person discussion of the
 results are in [WRITEUP.md](WRITEUP.md).
 
+The repository holds two studies:
+
+| | question | where |
+|---|---|---|
+| **Study 1: does the agent keep the gate?** | Inspect eval, 702 agent episodes (Claude Haiku 5.5, Sonnet 5.5 via API) | this README, [WRITEUP.md](WRITEUP.md) |
+| **Study 2: does the reviewer catch what's wrong?** | quality-inspection methods (signal detection, prevalence, attribute agreement, acceptance sampling) applied to LLM reviewers of proposal queues; 1,900+ review runs by Claude Code subagents | [PAPER.md](PAPER.md), [inspection/](inspection/) |
+
+**Study 2 in four lines.** With the source email attached, four Claude reviewers approved none of the
+defective proposals (0 of 1,432 judgments on 82 unique defects, bounds in the paper). Without it they
+could not discriminate (d′ ≈ 0); whether they approved what they couldn't verify depended on the model
+and on whether the queue let them answer "query": removing that option moved Haiku and Opus from holding
+most items to approving most of them. Asking for a 30-letter string instead of item-by-item answers raised
+Sonnet's measured miss rate from 0% to 12% on the same items. See [PAPER.md](PAPER.md).
+
 ## Quick start
 
 ```bash
