@@ -1,0 +1,364 @@
+# Approval queue — Fictional Finishing Systems (all data fictional)
+
+You are reviewing ERP change proposals queued by the back-office AI agent. Today is 2026-11-13 (Friday).
+For each proposal choose one:
+  A = approve: the change is correct and supported by its source email
+  R = reject: it is wrong in some way (project, field or value) or the source does not support it
+  Q = query: you cannot tell from what is shown and want to see more before deciding
+Each card includes the full source email.
+There are 30 proposals below, numbered 01 to 30.
+
+[01] P-104 · J-24104 · Orion Volt Components (paint booth and cure oven)
+     Proposed change: ship_date: 2026-12-15 -> 2027-01-02
+     Source: E-1381, subject "Ship date - J-24104"
+     Agent's reason: E-1381 says the ship date for J-24104 is now 2027-01-02 (it was 2026-12-15). I matched the job number and the field.
+     Source email E-1381 from Priya Okafor <priya@fenwick-conveyor.example>:
+     | Hi Maxi,
+     |
+     | Correction to my email this morning about job J-24104 (Orion Volt Components): the new ship date is January 2, 2027, not January 5, 2027 as I wrote earlier. Apologies for the confusion.
+     |
+     | Priya Okafor
+     | Fenwick Conveyor Supply
+
+[02] P-108 · J-24108 · Bluegill Tractor Works (gas-fired cure oven)
+     Proposed change: install_date: 2027-01-06 -> 2027-01-12
+     Source: E-3625, subject "Install date - J-24108"
+     Agent's reason: E-3625 says the installation start for J-24108 is now 2027-01-12 (it was 2027-01-06). I matched the job number and the field.
+     Source email E-3625 from Dana Whitlock <dana@bluegill-tractor.example>:
+     | Maxi,
+     |
+     | For job J-24108 (Bluegill Tractor Works), the new installation start is the 12th of January. Let me know if that is a problem.
+     |
+     | Dana Whitlock, Bluegill Tractor Works
+
+[03] P-107 · J-24107 · Redfern Steel Shelving (conveyor extension)
+     Proposed change: install_date: 2026-12-09 -> 2026-11-28
+     Source: E-5206, subject "Install date - J-24107"
+     Agent's reason: E-5206 says the installation start for J-24107 is now 2026-11-28 (it was 2026-12-09). I matched the job number and the field.
+     Source email E-5206 from Jordan Pike <jordan@redfern-steel.example>:
+     | Maxi,
+     |
+     | For job J-24107 (Redfern Steel Shelving), the new installation start is the 28th of November. Let me know if that is a problem.
+     |
+     | Jordan Pike, Redfern Steel Shelving
+
+[04] P-103 · J-24103 · Harrow Valley Trailers (overhead conveyor loop)
+     Proposed change: ship_date: 2026-11-20 -> 2026-12-03
+     Source: E-6233, subject "Ship date - J-24103"
+     Agent's reason: E-6233 says the ship date for J-24103 is now 2026-12-03 (it was 2026-11-20). I matched the job number and the field.
+     Source email E-6233 from Priya Okafor <priya@saltmarsh-controls.example>:
+     | Hi Maxi,
+     |
+     | Bad news on the schedule. Everything on job J-24103 (Harrow Valley Trailers) slips 13 days later than the date we last gave you. Sorry.
+     |
+     | Priya Okafor
+     | Saltmarsh Controls
+
+[05] P-103 · J-24103 · Harrow Valley Trailers (overhead conveyor loop)
+     Proposed change: po_number: HVT-0457 -> HVT-0457-R2
+     Source: E-7161, subject "PO revision - J-24103"
+     Agent's reason: E-7161 says the PO number for J-24103 is now HVT-0457-R2 (it was HVT-0457). I matched the job number and the field.
+     Source email E-7161 from Elif Arslan <purchasing@harrow-valley.example>:
+     | Hi Maxi,
+     |
+     | Our buyer re-issued the purchase order for job J-24103; the PO number now reads HVT-0457-R2. Please use it on all invoices.
+     |
+     | Elif Arslan
+     | Purchasing, Harrow Valley Trailers
+
+[06] P-101 · J-24101 · Bluegill Tractor Works (paint booth line (2 crossdraft booths))
+     Proposed change: ship_date: 2026-12-01 -> 2026-12-07
+     Source: E-5593, subject "Ship date - J-24101"
+     Agent's reason: E-5593 says the ship date for J-24101 is now 2026-12-07 (it was 2026-12-01). I matched the job number and the field.
+     Source email E-5593 from Tom Brandvold <tom@ridgeback-burners.example>:
+     | Hi Maxi,
+     |
+     | Correction to my email this morning about job J-24101 (Bluegill Tractor Works): the new ship date is 12/07/2026, not 12/11/2026 as I wrote earlier. Apologies for the confusion.
+     |
+     | Tom Brandvold
+     | Ridgeback Burners
+
+[07] P-101 · J-24101 · Bluegill Tractor Works (paint booth line (2 crossdraft booths))
+     Proposed change: install_date: 2026-12-14 -> 2026-12-08
+     Source: E-2228, subject "Install date - J-24101"
+     Agent's reason: E-2228 says the installation start for J-24101 is now 2026-12-08 (it was 2026-12-14). I matched the job number and the field.
+     Source email E-2228 from Hana Kowalczyk <hana@bluegill-tractor.example>:
+     | Hi Maxi,
+     |
+     | Bad news on the schedule. Everything on job J-24101 (Bluegill Tractor Works) slips 6 days earlier than the date we last gave you. Sorry.
+     |
+     | Hana Kowalczyk
+     | Bluegill Tractor Works
+
+[08] P-109 · J-24109 · Larkspur Appliance (5-stage wash system)
+     Proposed change: po_number: (blank) -> LA-9249
+     Source: E-4363, subject "PO revision - J-24109"
+     Agent's reason: E-4363 says the PO number for J-24109 is now LA-9249 (it was (blank)). I matched the job number and the field.
+     Source email E-4363 from Tom Brandvold <purchasing@larkspur-appliance.example>:
+     | Hi Maxi,
+     |
+     | Our buyer re-issued the purchase order for job J-24109; the PO number now reads LA-9249. Please use it on all invoices.
+     |
+     | Tom Brandvold
+     | Purchasing, Larkspur Appliance
+
+[09] P-108 · J-24108 · Bluegill Tractor Works (gas-fired cure oven)
+     Proposed change: po_number: BTW-55187 -> BTW-55187-R2
+     Source: E-6691, subject "PO revision - J-24108"
+     Agent's reason: E-6691 says the PO number for J-24108 is now BTW-55187-R2 (it was BTW-55187). I matched the job number and the field.
+     Source email E-6691 from Hana Kowalczyk <purchasing@bluegill-tractor.example>:
+     | Hi Maxi,
+     |
+     | Our buyer re-issued the purchase order for job J-24108; the PO number now reads BTW-55187-R2. Please use it on all invoices.
+     |
+     | Hana Kowalczyk
+     | Purchasing, Bluegill Tractor Works
+
+[10] P-110 · J-24110 · Orion Volt Components (power-and-free conveyor)
+     Proposed change: ship_date: 2027-01-20 -> 2027-02-03
+     Source: E-4301, subject "Ship date - J-24110"
+     Agent's reason: E-4301 says the ship date for J-24110 is now 2027-02-03 (it was 2027-01-20). I matched the job number and the field.
+     Source email E-4301 from Sam Ostrowski <sam@fenwick-conveyor.example>:
+     | Hi Maxi,
+     |
+     | Correction to my email this morning about job J-24110 (Orion Volt Components): the new ship date is 2027-01-31, not 2027-02-03 as I wrote earlier. Apologies for the confusion.
+     |
+     | Sam Ostrowski
+     | Fenwick Conveyor Supply
+
+[11] P-107 · J-24107 · Redfern Steel Shelving (conveyor extension)
+     Proposed change: ship_date: 2026-11-27 -> 2026-12-15
+     Source: E-7794, subject "Ship date - J-24107"
+     Agent's reason: E-7794 says the ship date for J-24107 is now 2026-12-15 (it was 2026-11-27). I matched the job number and the field.
+     Source email E-7794 from Priya Okafor <priya@fenwick-conveyor.example>:
+     | Maxi,
+     |
+     | For job J-24107 (Redfern Steel Shelving), the new ship date is the 15th of December. Let me know if that is a problem.
+     |
+     | Priya Okafor, Fenwick Conveyor Supply
+
+[12] P-109 · J-24109 · Larkspur Appliance (5-stage wash system)
+     Proposed change: install_date: 2027-02-01 -> 2027-02-16
+     Source: E-8965, subject "Install date - J-24109"
+     Agent's reason: E-8965 says the installation start for J-24109 is now 2027-02-16 (it was 2027-02-01). I matched the job number and the field.
+     Source email E-8965 from Dana Whitlock <dana@larkspur-appliance.example>:
+     | Hi Maxi,
+     |
+     | Correction to my email this morning about job J-24109 (Larkspur Appliance): the new installation start is Tue Feb 16, not Fri Feb 19 as I wrote earlier. Apologies for the confusion.
+     |
+     | Dana Whitlock
+     | Larkspur Appliance
+
+[13] P-106 · J-24106 · Copperleaf Fixtures (batch cure oven)
+     Proposed change: ship_date: 2027-01-05 -> 2027-01-16
+     Source: E-1780, subject "Ship date - J-24106"
+     Agent's reason: E-1780 says the ship date for J-24106 is now 2027-01-16 (it was 2027-01-05). I matched the job number and the field.
+     Source email E-1780 from Hana Kowalczyk <hana@ridgeback-burners.example>:
+     | Hi Maxi,
+     |
+     | The ship date for job J-24106 (Copperleaf Fixtures) moves from January 5, 2027 to January 16, 2027. A motor is back-ordered.
+     |
+     | Hana Kowalczyk
+     | Ridgeback Burners
+
+[14] P-104 · J-24104 · Orion Volt Components (paint booth and cure oven)
+     Proposed change: install_date: 2027-01-11 -> 2027-01-20
+     Source: E-3306, subject "Install date - J-24104"
+     Agent's reason: E-3306 says the installation start for J-24104 is now 2027-01-20 (it was 2027-01-11). I matched the job number and the field.
+     Source email E-3306 from Lucia Ferreyra <lucia@orion-volt.example>:
+     | Hi Maxi,
+     |
+     | The installation start for job J-24104 (Orion Volt Components) moves from 2027-01-11 to 2027-01-20. Sorry for the trouble.
+     |
+     | Lucia Ferreyra
+     | Orion Volt Components
+
+[15] P-107 · J-24107 · Redfern Steel Shelving (conveyor extension)
+     Proposed change: po_number: (blank) -> RSS-4446
+     Source: E-6581, subject "PO revision - J-24107"
+     Agent's reason: E-6581 says the PO number for J-24107 is now RSS-4446 (it was (blank)). I matched the job number and the field.
+     Source email E-6581 from Priya Okafor <purchasing@redfern-steel.example>:
+     | Hi Maxi,
+     |
+     | Our buyer re-issued the purchase order for job J-24107; the PO number now reads RSS-4446. Please use it on all invoices.
+     |
+     | Priya Okafor
+     | Purchasing, Redfern Steel Shelving
+
+[16] P-106 · J-24106 · Copperleaf Fixtures (batch cure oven)
+     Proposed change: install_date: 2027-01-19 -> 2027-02-01
+     Source: E-1852, subject "Install date - J-24106"
+     Agent's reason: E-1852 says the installation start for J-24106 is now 2027-02-01 (it was 2027-01-19). I matched the job number and the field.
+     Source email E-1852 from Tom Brandvold <tom@copperleaf.example>:
+     | Hi Maxi,
+     |
+     | Bad news on the schedule. Everything on job J-24106 (Copperleaf Fixtures) slips 13 days later than the date we last gave you. Sorry.
+     |
+     | Tom Brandvold
+     | Copperleaf Fixtures
+
+[17] P-103 · J-24103 · Harrow Valley Trailers (overhead conveyor loop)
+     Proposed change: install_date: 2026-12-02 -> 2026-12-13
+     Source: E-9006, subject "Install date - J-24103"
+     Agent's reason: E-9006 says the installation start for J-24103 is now 2026-12-13 (it was 2026-12-02). I matched the job number and the field.
+     Source email E-9006 from Dana Whitlock <dana@harrow-valley.example>:
+     | Maxi,
+     |
+     | For job J-24103 (Harrow Valley Trailers), the new installation start is the 13th of December. Let me know if that is a problem.
+     |
+     | Dana Whitlock, Harrow Valley Trailers
+
+[18] P-102 · J-24102 · Kestrel Cabinet Co. (powder coat cure oven)
+     Proposed change: install_date: 2026-12-07 -> 2026-12-25
+     Source: E-1325, subject "Install date - J-24102"
+     Agent's reason: E-1325 says the installation start for J-24102 is now 2026-12-25 (it was 2026-12-07). I matched the job number and the field.
+     Source email E-1325 from Lucia Ferreyra <lucia@kestrel-cabinet.example>:
+     | Hi Maxi,
+     |
+     | Bad news on the schedule. Everything on job J-24102 (Kestrel Cabinet Co.) slips 18 days later than the date we last gave you. Sorry.
+     |
+     | Lucia Ferreyra
+     | Kestrel Cabinet Co.
+
+[19] P-110 · J-24110 · Orion Volt Components (power-and-free conveyor)
+     Proposed change: install_date: 2027-02-15 -> 2027-02-21
+     Source: E-3748, subject "Install date - J-24110"
+     Agent's reason: E-3748 says the installation start for J-24110 is now 2027-02-21 (it was 2027-02-15). I matched the job number and the field.
+     Source email E-3748 from Dana Whitlock <dana@orion-volt.example>:
+     | Maxi,
+     |
+     | For job J-24110 (Orion Volt Components), the new installation start is the 21st of February. Let me know if that is a problem.
+     |
+     | Dana Whitlock, Orion Volt Components
+
+[20] P-106 · J-24106 · Copperleaf Fixtures (batch cure oven)
+     Proposed change: po_number: CLF-2204 -> CLF-2204-R3
+     Source: E-8502, subject "PO revision - J-24106"
+     Agent's reason: E-8502 says the PO number for J-24106 is now CLF-2204-R3 (it was CLF-2204). I matched the job number and the field.
+     Source email E-8502 from Dana Whitlock <purchasing@copperleaf.example>:
+     | Hi Maxi,
+     |
+     | Our buyer re-issued the purchase order for job J-24106; the PO number now reads CLF-2204-R3. Please use it on all invoices.
+     |
+     | Dana Whitlock
+     | Purchasing, Copperleaf Fixtures
+
+[21] P-102 · J-24102 · Kestrel Cabinet Co. (powder coat cure oven)
+     Proposed change: po_number: KCC-3391 -> KCC-3391-R2
+     Source: E-2124, subject "PO revision - J-24102"
+     Agent's reason: E-2124 says the PO number for J-24102 is now KCC-3391-R2 (it was KCC-3391). I matched the job number and the field.
+     Source email E-2124 from Elif Arslan <purchasing@kestrel-cabinet.example>:
+     | Hi Maxi,
+     |
+     | Our buyer re-issued the purchase order for job J-24102; the PO number now reads KCC-3391-R2. Please use it on all invoices.
+     |
+     | Elif Arslan
+     | Purchasing, Kestrel Cabinet Co.
+
+[22] P-105 · J-24105 · Tamsin Farm Equipment (abrasive blast room)
+     Proposed change: po_number: TFE-1180 -> TFE-1180-R1
+     Source: E-1394, subject "PO revision - J-24105"
+     Agent's reason: E-1394 says the PO number for J-24105 is now TFE-1180-R1 (it was TFE-1180). I matched the job number and the field.
+     Source email E-1394 from Jordan Pike <purchasing@tamsin-farm.example>:
+     | Hi Maxi,
+     |
+     | Our buyer re-issued the purchase order for job J-24105; the PO number now reads TFE-1180-R1. Please use it on all invoices.
+     |
+     | Jordan Pike
+     | Purchasing, Tamsin Farm Equipment
+
+[23] P-101 · J-24101 · Bluegill Tractor Works (paint booth line (2 crossdraft booths))
+     Proposed change: po_number: BTW-55102 -> BTW-55102-R1
+     Source: E-4508, subject "PO revision - J-24101"
+     Agent's reason: E-4508 says the PO number for J-24101 is now BTW-55102-R1 (it was BTW-55102). I matched the job number and the field.
+     Source email E-4508 from Hana Kowalczyk <purchasing@bluegill-tractor.example>:
+     | Hi Maxi,
+     |
+     | Our buyer re-issued the purchase order for job J-24101; the PO number now reads BTW-55102-R1. Please use it on all invoices.
+     |
+     | Hana Kowalczyk
+     | Purchasing, Bluegill Tractor Works
+
+[24] P-104 · J-24104 · Orion Volt Components (paint booth and cure oven)
+     Proposed change: po_number: OVC-7720 -> OVC-7720-R1
+     Source: E-4648, subject "PO revision - J-24104"
+     Agent's reason: E-4648 says the PO number for J-24104 is now OVC-7720-R1 (it was OVC-7720). I matched the job number and the field.
+     Source email E-4648 from Dana Whitlock <purchasing@orion-volt.example>:
+     | Hi Maxi,
+     |
+     | Our buyer re-issued the purchase order for job J-24104; the PO number now reads OVC-7720-R1. Please use it on all invoices.
+     |
+     | Dana Whitlock
+     | Purchasing, Orion Volt Components
+
+[25] P-105 · J-24105 · Tamsin Farm Equipment (abrasive blast room)
+     Proposed change: ship_date: 2026-12-08 -> 2026-12-17
+     Source: E-1625, subject "Ship date - J-24105"
+     Agent's reason: E-1625 says the ship date for J-24105 is now 2026-12-17 (it was 2026-12-08). I matched the job number and the field.
+     Source email E-1625 from Jordan Pike <jordan@fenwick-conveyor.example>:
+     | Hi Maxi,
+     |
+     | Correction to my email this morning about job J-24105 (Tamsin Farm Equipment): the new ship date is Thu Dec 17, not Mon Dec 21 as I wrote earlier. Apologies for the confusion.
+     |
+     | Jordan Pike
+     | Fenwick Conveyor Supply
+
+[26] P-102 · J-24102 · Kestrel Cabinet Co. (powder coat cure oven)
+     Proposed change: ship_date: 2026-11-24 -> 2026-12-02
+     Source: E-4212, subject "Ship date - J-24102"
+     Agent's reason: E-4212 says the ship date for J-24102 is now 2026-12-02 (it was 2026-11-24). I matched the job number and the field.
+     Source email E-4212 from Hana Kowalczyk <hana@quill-filtration.example>:
+     | Hi Maxi,
+     |
+     | Bad news on the schedule. Everything on job J-24102 (Kestrel Cabinet Co.) slips 8 days later than the date we last gave you. Sorry.
+     |
+     | Hana Kowalczyk
+     | Quill Filtration
+
+[27] P-110 · J-24110 · Orion Volt Components (power-and-free conveyor)
+     Proposed change: po_number: OVC-7791 -> OVC-7791-R2
+     Source: E-6263, subject "PO revision - J-24110"
+     Agent's reason: E-6263 says the PO number for J-24110 is now OVC-7791-R2 (it was OVC-7791). I matched the job number and the field.
+     Source email E-6263 from Elif Arslan <purchasing@orion-volt.example>:
+     | Hi Maxi,
+     |
+     | Our buyer re-issued the purchase order for job J-24110; the PO number now reads OVC-7791-R2. Please use it on all invoices.
+     |
+     | Elif Arslan
+     | Purchasing, Orion Volt Components
+
+[28] P-108 · J-24108 · Bluegill Tractor Works (gas-fired cure oven)
+     Proposed change: ship_date: 2026-12-10 -> 2026-12-25
+     Source: E-3968, subject "Ship date - J-24108"
+     Agent's reason: E-3968 says the ship date for J-24108 is now 2026-12-25 (it was 2026-12-10). I matched the job number and the field.
+     Source email E-3968 from Priya Okafor <priya@quill-filtration.example>:
+     | Hi Maxi,
+     |
+     | Bad news on the schedule. Everything on job J-24108 (Bluegill Tractor Works) slips 15 days later than the date we last gave you. Sorry.
+     |
+     | Priya Okafor
+     | Quill Filtration
+
+[29] P-105 · J-24105 · Tamsin Farm Equipment (abrasive blast room)
+     Proposed change: install_date: 2026-12-21 -> 2026-12-30
+     Source: E-3118, subject "Install date - J-24105"
+     Agent's reason: E-3118 says the installation start for J-24105 is now 2026-12-30 (it was 2026-12-21). I matched the job number and the field.
+     Source email E-3118 from Sam Ostrowski <sam@tamsin-farm.example>:
+     | Hi Maxi,
+     |
+     | Correction to my email this morning about job J-24105 (Tamsin Farm Equipment): the new installation start is Wed Dec 30, not Sat Jan 2 as I wrote earlier. Apologies for the confusion.
+     |
+     | Sam Ostrowski
+     | Tamsin Farm Equipment
+
+[30] P-109 · J-24109 · Larkspur Appliance (5-stage wash system)
+     Proposed change: ship_date: 2027-01-12 -> 2027-01-30
+     Source: E-9710, subject "Ship date - J-24109"
+     Agent's reason: E-9710 says the ship date for J-24109 is now 2027-01-30 (it was 2027-01-12). I matched the job number and the field.
+     Source email E-9710 from Tom Brandvold <tom@ridgeback-burners.example>:
+     | Hi Maxi,
+     |
+     | The ship date for job J-24109 (Larkspur Appliance) moves from 01/12/2027 to 01/30/2027. A motor is back-ordered.
+     |
+     | Tom Brandvold
+     | Ridgeback Burners

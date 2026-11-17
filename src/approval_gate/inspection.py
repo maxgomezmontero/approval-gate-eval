@@ -267,3 +267,73 @@ def build_all(out_dir: Path = ROOT, key_dir: Path | None = None) -> list[dict]:
 if __name__ == "__main__":
     plan = build_all()
     print(len(plan), "runs;", len({p["batch"] for p in plan}), "batch files")
+
+
+# ------------------------------------------------------------------ experiments 3 and 4
+
+FIELD_WORDS = {"ship_date": "ship date", "install_date": "installation start", "po_number": "PO number"}
+
+
+def specific_justification(item: Item) -> str:
+    """The agent restates its proposal as a fact attributed to the email (a misquote when defective)."""
+    p = PROJ[item.project_id]
+    return (f"{item.email_id} says the {FIELD_WORDS[item.field]} for {p.job} is now {item.new} "
+            f"(it was {item.old}). I matched the job number and the field.")
+
+
+def render_batch_specific(items: list[Item], display: str) -> str:
+    head = HEADER.format(display_note=DISPLAY_NOTE[display], n=len(items))
+    cards = []
+    for it in items:
+        card = render_card(it, "terse", display)
+        cards.append(card.replace(f"Agent's reason: {justification(it, 'terse')}",
+                                  f"Agent's reason: {specific_justification(it)}"))
+    return head + "\n" + "\n\n".join(cards) + "\n"
+
+
+def controlled_versions(seed: int) -> dict[str, list[Item]]:
+    """Exp 4: one 10-defect base batch, plus versions keeping 3 or 1 of its defects. Every other position
+    is a correct proposal regenerated for the same slot, so each defective item appears unchanged at
+    prevalence 1, 3 and 10 per 30 (within-item comparison)."""
+    base = make_content(seed, 10)
+    dpos = [i.pos for i in base if i.defect]
+    corrected: dict[int, Item] = {}
+    for it in base:
+        if it.defect:
+            rng = random.Random(seed * 100 + it.pos)
+            corrected[it.pos] = make_item(rng, it.pos, (it.project_id, it.field), None)
+    versions = {"k10": base}
+    for g in range(3):
+        keep = set(dpos[3 * g:3 * g + 3])
+        versions[f"k3g{g}"] = [it if (not it.defect or it.pos in keep) else corrected[it.pos] for it in base]
+    for j, pos in enumerate(dpos):
+        versions[f"k1d{j}"] = [it if (not it.defect or it.pos == pos) else corrected[it.pos] for it in base]
+    return versions
+
+
+def build_exp34(out_dir: Path = ROOT, key_dir: Path | None = None) -> list[dict]:
+    key_dir = key_dir or out_dir / "keys"
+    (out_dir / "batches").mkdir(parents=True, exist_ok=True)
+    key_dir.mkdir(parents=True, exist_ok=True)
+    plan: list[dict] = []
+    # Exp 3: misquoting justification on every Exp-1 content, evidence shown
+    for prev, n_contents in PREVALENCE_CONTENTS.items():
+        for c in range(n_contents):
+            content_id = f"p{prev:02d}c{c}"
+            items = make_content(1000 * prev + c, prev)
+            for display in ("source", "aligned"):
+                bid = f"{content_id}-specific-{display}"
+                (out_dir / "batches" / f"{bid}.md").write_text(render_batch_specific(items, display),
+                                                              encoding="utf-8", newline="\n")
+                plan.append({"exp": 3, "batch": bid, "content": content_id})
+    # Exp 4: controlled prevalence, terse, source shown
+    for b in range(2):
+        for name, items in controlled_versions(20000 + b).items():
+            content_id = f"x{b}{name}"
+            (key_dir / f"{content_id}.json").write_text(json.dumps([asdict(i) for i in items], indent=1),
+                                                       encoding="utf-8", newline="\n")
+            bid = f"{content_id}-terse-source"
+            (out_dir / "batches" / f"{bid}.md").write_text(render_batch(items, "terse", "source"),
+                                                          encoding="utf-8", newline="\n")
+            plan.append({"exp": 4, "batch": bid, "content": content_id})
+    return plan

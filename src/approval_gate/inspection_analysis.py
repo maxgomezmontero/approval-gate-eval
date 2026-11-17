@@ -32,9 +32,29 @@ def parse_results(text: str) -> list[dict]:
             continue
         batch, op, rep, dec = line.strip().split("|")
         content, style, display = batch.split("-")
-        out.append({"batch": batch, "content": content, "prevalence": int(content[1:3]), "style": style,
+        prev = int(content[1:3]) if content.startswith("p") else None  # Exp 4: filled from the key
+        out.append({"batch": batch, "content": content, "prevalence": prev, "style": style,
                     "display": display, "operator": op, "model": op.split("-")[0], "rep": int(rep),
                     "decisions": None if dec in ("NULL", "BAD") else dec})
+    return out
+
+
+def ambiguity_cues(items: list[dict]) -> dict[int, dict[str, int]]:
+    """Reasons a careful reviewer could legitimately hesitate on a *correct* proposal:
+    conflict  - with all proposals applied, the project's ship date would fall after its install date
+    yearless  - the source gives the date without a year ("the 26th of November")
+    relative  - the source gives a shift ("slips 13 days from the date we last gave you")"""
+    by_proj: dict[str, dict[str, str]] = defaultdict(dict)
+    for it in items:
+        by_proj[it["project_id"]][it["field"]] = it["new"]
+    out = {}
+    for it in items:
+        d = by_proj[it["project_id"]]
+        ship, inst = d.get("ship_date"), d.get("install_date")
+        conflict = int(it["field"] in ("ship_date", "install_date") and bool(ship and inst) and ship > inst)
+        out[it["pos"]] = {"cue_conflict": conflict,
+                          "cue_yearless": int(" of " in it["key_sentence"] and "the " in it["key_sentence"]),
+                          "cue_relative": int(" slips " in it["key_sentence"])}
     return out
 
 
@@ -47,14 +67,17 @@ def item_rows(results: list[dict], key_dir: Path) -> list[dict]:
         if not d or d in ("BAD", "NULL") or len(d) != 30 or set(d) - {"A", "R", "Q"}:
             continue
         items = keys.setdefault(r["content"], json.loads((key_dir / f"{r['content']}.json").read_text(encoding="utf-8")))
+        prev = r["prevalence"] if r["prevalence"] is not None else sum(1 for it in items if it["defect"])
+        cues = ambiguity_cues(items)
         for it in items:
             dec = d[it["pos"] - 1]
             rows.append({
                 "run": f"{r['batch']}|{r['operator']}|{r['rep']}", "batch": r["batch"], "content": r["content"],
-                "prevalence": r["prevalence"], "style": r["style"], "display": r["display"],
+                "prevalence": prev, "style": r["style"], "display": r["display"],
                 "operator": r["operator"], "model": r["model"], "rep": r["rep"], "pos": it["pos"],
                 "defect": it["defect"] or "", "field": it["field"], "signal": int(it["defect"] is not None),
                 "decision": dec, "reject": int(dec != "A"), "query": int(dec == "Q"), "hard_reject": int(dec == "R"),
+                **cues[it["pos"]], "clean": int(not any(cues[it["pos"]].values())),
             })
     return rows
 

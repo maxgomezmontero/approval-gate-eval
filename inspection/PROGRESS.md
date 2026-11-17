@@ -68,3 +68,27 @@ rejected), d' and c with log-linear correction, logistic regression on miss, clu
 - Decision: keep v2 as the "string format" measurement and re-run the full design as v3 with item-numbered,
   validated output (n, d) per proposal, and add Opus as a fourth reviewer: 336 runs.
 - v2 report saved under inspection/results/v2_string_format/.
+
+### 22:35 — related work check and two extra experiments launched
+- Searched for prior work. SDT has been proposed as a framework for error detection in AI oversight, and
+  the prevalence effect is discussed for *human* labellers of rare events, but I found no study testing
+  a prevalence effect in LLM reviewers, and no Gage R&R (repeatability x reproducibility, output channel)
+  of LLM monitors. AI control's trusted monitoring (Greenblatt et al. 2023, and 2025-26 follow-ups on
+  adaptive attacks and bootstrapped monitoring) assumes a monitor's error profile but does not measure it
+  with inspection-science tools. These are the gaps Study 2 targets; claims will stay "to our knowledge".
+- Exp 3 (misquoting justification): the agent's reason restates its wrong value as if quoted from the
+  email. 22 batches x 4 reviewers.
+- Exp 4 (controlled prevalence): the same 20 defective items embedded at 1, 3 and 10 defects per 30
+  (other items regenerated as correct proposals for the same slots). 28 batches x 4 reviewers.
+- v3 (item-numbered output, 4 reviewers incl. Opus) running in parallel: 336 runs.
+
+### 22:50 — Exp 3/4 done; stimulus-validity check on "false alarms"
+- Exp 3/4: 200 runs, 0 invalid outputs.
+- Haiku rejected/queried some *correct* proposals in Exp 4 at fixed positions. Inspection showed real
+  reasons to hesitate that my generator introduced: (a) with all proposals applied, a project's ship
+  date can land after its install date; (b) yearless dates ("the 26th of November"); (c) relative shifts
+  whose base ("the date we last gave you") is assumed to be the ERP value. 39% of good items carry at least
+  one cue (conflict 10%, yearless 16%, relative 18%).
+- Added these as `cue_*` columns and a `clean` flag. On v2: Haiku's false alarms with the source shown are
+  10% on clean items vs 31% on cued items, and the evidence-alignment display cuts them to ~0-6%. So part of
+  Haiku's "false alarms" is calibrated hesitation, and the paper must report FA on clean items separately.
