@@ -138,6 +138,16 @@ Same items in every version; only the other positions change. Two base queues, s
 
 First pass (v2), Sonnet, evidence shown: runs whose string fits the key better after a shift: 8/56. Misses in those runs: 15/20; in the other runs: 15/156 (9.6%). The shift diagnosis uses the key, so it is suggestive, not proof.
 
+Interleaved re-test (same session, same queues, randomized order), evidence shown:
+
+| reviewer | format | defects judged | approved | exact 95% CI | false alarms |
+|---|---|---|---|---|---|
+| haiku | 30-letter string | 140 | 0 | [0.0, 2.6] | 7.9% |
+| haiku | item-numbered | 140 | 0 | [0.0, 2.6] | 8.9% |
+| sonnet | 30-letter string | 140 | 17 | [7.2, 18.7] | 4.5% |
+| sonnet | item-numbered | 140 | 0 | [0.0, 2.6] | 1.0% |
+
+Invalid outputs in the revision runs: 0.
 
 ## 9. Exp 7: superseded evidence
 
@@ -145,12 +155,31 @@ First pass (v2), Sonnet, evidence shown: runs whose string fits the key better a
 |---|---|---|---|---|---|
 | haiku-low | source-only wording | source | 3/70 | 12.1% | 25.0% |
 | haiku-low | source-only wording | aligned | 3/70 | 1.1% | 4.2% |
+| haiku-low | all-information wording | source | 1/70 | 15.5% | 33.5% |
 | haiku | source-only wording | source | 0/70 | 6.2% | 23.3% |
 | haiku | source-only wording | aligned | 0/70 | 0.0% | 8.9% |
+| haiku | all-information wording | source | 1/70 | 20.3% | 44.5% |
 | sonnet | source-only wording | source | 0/70 | 14.1% | 23.3% |
 | sonnet | source-only wording | aligned | 1/70 | 5.6% | 12.3% |
+| sonnet | all-information wording | source | 0/70 | 9.9% | 20.3% |
 | opus | source-only wording | source | 0/70 | 0.8% | 6.4% |
 | opus | source-only wording | aligned | 0/70 | 0.0% | 6.8% |
+| opus | all-information wording | source | 0/70 | 3.4% | 10.2% |
+
+## 10. Evidence alignment from a regex extractor (no answer key) vs the oracle alignment
+
+The regex extractor matched the oracle's job on 330/330 items and the oracle sentence on 325/330, because the source emails are templated: on this stimulus set the oracle concern is small, on real email it would not be.
+
+| reviewer | display | defects approved | false alarms, clean |
+|---|---|---|---|
+| haiku-low | oracle aligned | 0/35 | 0.6% |
+| haiku-low | regex extracted | 0/35 | 2.2% |
+| haiku | oracle aligned | 0/35 | 0.0% |
+| haiku | regex extracted | 0/35 | 0.6% |
+| sonnet | oracle aligned | 0/35 | 0.0% |
+| sonnet | regex extracted | 0/35 | 2.2% |
+| opus | oracle aligned | 0/35 | 0.6% |
+| opus | regex extracted | 0/35 | 0.6% |
 
 ## 11. Acceptance sampling after review
 
@@ -158,7 +187,6 @@ Lot = one reviewed queue of N = 30 approved proposals; inspect n at random; acce
 
 | plan | AOQL (defects per 1,000 approved) |
 |---|---|
-| n = 0, c = 0 | 500.0 |
 | n = 3, c = 0 | 94.9 |
 | n = 5, c = 0 | 55.8 |
 | n = 10, c = 0 | 23.4 |

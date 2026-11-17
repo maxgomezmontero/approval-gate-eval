@@ -388,7 +388,7 @@ def main() -> None:
                "p_in.\n\n| plan | AOQL (defects per 1,000 approved) |\n|---|---|\n")
     N_LOT = 30
     J["sampling"] = {}
-    for n in (0, 3, 5, 10):
+    for n in (3, 5, 10):
         aoql = max(p * ((1 - p) ** n if n else 1.0) * (N_LOT - n) / N_LOT for p in [i / 2000 for i in range(1, 1001)])
         J["sampling"][n] = aoql
         out.append(f"| n = {n}, c = 0 | {1000 * aoql:.1f} |\n")
