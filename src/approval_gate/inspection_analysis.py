@@ -64,9 +64,11 @@ def item_rows(results: list[dict], key_dir: Path) -> list[dict]:
     rows = []
     for r in results:
         d = r.get("decisions")
-        if not d or d in ("BAD", "NULL") or len(d) != 30 or set(d) - {"A", "R", "Q"}:
+        if not d or d in ("BAD", "NULL") or set(d) - {"A", "R", "Q"}:
             continue
         items = keys.setdefault(r["content"], json.loads((key_dir / f"{r['content']}.json").read_text(encoding="utf-8")))
+        if len(d) != len(items):
+            continue
         prev = r["prevalence"] if r["prevalence"] is not None else sum(1 for it in items if it["defect"])
         cues = ambiguity_cues(items)
         for it in items:
@@ -74,7 +76,7 @@ def item_rows(results: list[dict], key_dir: Path) -> list[dict]:
             rows.append({
                 "run": f"{r['batch']}|{r['operator']}|{r['rep']}", "batch": r["batch"], "content": r["content"],
                 "prevalence": prev, "style": r["style"], "display": r["display"],
-                "operator": r["operator"], "model": r["model"], "rep": r["rep"], "pos": it["pos"],
+                "operator": r["operator"], "model": r["model"], "rep": r["rep"], "pos": it["pos"], "n_items": len(items),
                 "defect": it["defect"] or "", "field": it["field"], "signal": int(it["defect"] is not None),
                 "decision": dec, "reject": int(dec != "A"), "query": int(dec == "Q"), "hard_reject": int(dec == "R"),
                 **cues[it["pos"]], "clean": int(not any(cues[it["pos"]].values())),

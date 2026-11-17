@@ -337,3 +337,90 @@ def build_exp34(out_dir: Path = ROOT, key_dir: Path | None = None) -> list[dict]
                                                           encoding="utf-8", newline="\n")
             plan.append({"exp": 4, "batch": bid, "content": content_id})
     return plan
+
+
+# ------------------------------------------------------------------ experiments 5 and 6
+
+FIRST = ("Alder", "Basalt", "Cobalt", "Driftwood", "Elm", "Falcon", "Granite", "Heron", "Iron", "Juniper",
+         "Kingfisher", "Larch", "Maple", "Nettle", "Osprey", "Pike", "Quarry", "Rowan", "Sable", "Thistle")
+LAST = ("Agricultural Works", "Cabinetry", "Trailer Co.", "Appliance", "Steelworks", "Fixtures",
+        "Machine Shop", "Equipment", "Fabrication", "Components")
+EQUIP = ("paint booth", "cure oven", "overhead conveyor", "blast room", "wash system", "batch oven")
+
+
+def extra_projects(n: int, seed: int = 99) -> list[Project]:
+    """Fictional projects for long queues; consecutive pairs share a customer (siblings)."""
+    rng = random.Random(seed)
+    out = []
+    for i in range(n):
+        if i % 2 == 0:
+            cust = f"{FIRST[(i // 2) % len(FIRST)]} {LAST[(i // 2) % len(LAST)]}"
+            dom = cust.lower().replace(" ", "-").replace(".", "") + ".example"
+        ship = shift("2026-11-20", rng.randint(0, 70))
+        initials = "".join(w[0] for w in cust.split()[:2]).upper()
+        out.append(Project(f"P-{200 + i}", f"J-25{200 + i}", cust, dom, rng.choice(EQUIP), ship,
+                           shift(ship, rng.randint(10, 30)), "In fabrication", f"{initials}X-{rng.randint(1000, 9999)}"))
+    return out
+
+
+def register(projects: list[Project]) -> None:
+    for i, p in enumerate(projects):
+        PROJ[p.id] = p
+        if i % 2 == 1:
+            SIBLING[p.id], SIBLING[projects[i - 1].id] = projects[i - 1].id, p.id
+
+
+def make_long_content(seed: int, projects: list[Project], n_defects: int) -> list[Item]:
+    rng = random.Random(seed)
+    slots = [(p.id, f) for p in projects for f in ("ship_date", "install_date", "po_number")]
+    rng.shuffle(slots)
+    defects = [DEFECTS[(seed + i) % len(DEFECTS)] for i in range(n_defects)]
+    assigned: dict[int, str] = {}
+    for d in defects:
+        free = [i for i, s in enumerate(slots) if i not in assigned and ELIGIBLE[d](s)]
+        assigned[rng.choice(free)] = d
+    return [make_item(rng, i + 1, slots[i], assigned.get(i)) for i in range(len(slots))]
+
+
+FORCED_HEADER = """# Approval queue — Fictional Finishing Systems (all data fictional)
+
+You are reviewing ERP change proposals queued by the back-office AI agent. Today is 2026-11-13 (Friday).
+For each proposal choose one:
+  A = approve: the change is correct and supported by its source email
+  R = reject: it is wrong in some way (project, field or value) or the source does not support it
+This queue only accepts A or R: there is no option to defer or ask for more information.
+{display_note}
+There are {n} proposals below, numbered 01 to {n}.
+"""
+
+
+def build_exp56(out_dir: Path = ROOT, key_dir: Path | None = None) -> list[dict]:
+    key_dir = key_dir or out_dir / "keys"
+    plan: list[dict] = []
+    extra = extra_projects(40)
+    register(extra)
+    pool = list(PROJECTS) + extra  # 50 projects -> up to 150 slots
+    for length, n_def in ((30, 1), (90, 3), (150, 5)):
+        for c in range(3):
+            rng = random.Random(500 + length + c)
+            projects = rng.sample(pool, length // 3)
+            items = make_long_content(70000 + 10 * length + c, projects, n_def)
+            content_id = f"L{length:03d}c{c}"
+            (key_dir / f"{content_id}.json").write_text(json.dumps([asdict(i) for i in items], indent=1),
+                                                       encoding="utf-8", newline="\n")
+            bid = f"{content_id}-terse-source"
+            (out_dir / "batches" / f"{bid}.md").write_text(render_batch(items, "terse", "source"),
+                                                          encoding="utf-8", newline="\n")
+            plan.append({"exp": 5, "batch": bid, "n": length})
+    for prev, n_contents in PREVALENCE_CONTENTS.items():
+        for c in range(n_contents):
+            content_id = f"p{prev:02d}c{c}"
+            items = make_content(1000 * prev + c, prev)
+            for style in STYLES:
+                bid = f"{content_id}-{style}-forced"
+                head = FORCED_HEADER.format(display_note=DISPLAY_NOTE["card"], n=len(items))
+                body = "\n\n".join(render_card(i, style, "card") for i in items)
+                (out_dir / "batches" / f"{bid}.md").write_text(head + "\n" + body + "\n", encoding="utf-8",
+                                                              newline="\n")
+                plan.append({"exp": 6, "batch": bid, "n": 30})
+    return plan

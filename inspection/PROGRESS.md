@@ -92,3 +92,20 @@ rejected), d' and c with log-linear correction, logistic regression on miss, clu
 - Added these as `cue_*` columns and a `clean` flag. On v2: Haiku's false alarms with the source shown are
   10% on clean items vs 31% on cued items, and the evidence-alignment display cuts them to ~0-6%. So part of
   Haiku's "false alarms" is calibrated hesitation, and the paper must report FA on clean items separately.
+
+### 23:05 — v3 (item-numbered output, 4 reviewers) changes the story
+- With evidence shown (source or aligned), all four reviewers approved 0 of 704 defective proposals.
+  Exp 3 (misquoting justification): 0/280. Exp 4 (same defects at 1, 3, 10 per 30): 0/232, no paired
+  item missed at any prevalence. Rule-of-three upper bounds: miss <= ~0.4% (704), <= ~1.3% (232).
+- So the v2 "Sonnet misses 17%" was entirely the 30-letter output channel (A. in EXTRA.md: 17.0% -> 0.0%,
+  same reviewer, same items). Headline methods finding: a monitor's measured miss rate can be dominated by
+  how it is asked to report, so do MSA before trusting monitor error rates.
+- Where the gate fails is the interface: card-only (no email), Sonnet approved ~76% of good items it could
+  not verify and 34% of defects; Haiku and Opus mostly queried. Reproducibility between reviewer models
+  is low (kappa 0.38-0.45 for Sonnet pairs): the monitor's *criterion*, not its detection, decides.
+- Evidence alignment (poka-yoke) cut false alarms of the conservative reviewers from 9-20% to 0.3-4% with
+  no misses. False alarms concentrate on items with genuine ambiguity cues.
+- Prevalence: no effect on misses (all zero). In Exp 4, Haiku's false alarms fall as defects become more
+  common (haiku-low 19% -> 0%, haiku 21% -> 13%); needs a cue-controlled check on the never-defective items.
+- Launched Exp 5 (queue length 30/90/150 at ~3% prevalence, source shown, 2 reps) and Exp 6 (forced A/R
+  with no evidence attached): 160 runs.
