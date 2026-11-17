@@ -1,10 +1,11 @@
 {
  "evidence": {
-  "judgments": 1432,
-  "approved": 0,
-  "unique_items": 82,
-  "ub_judgment": 0.002572718012218688,
-  "ub_item": 0.04398945418684236
+  "judgments": 2072,
+  "approved": 1,
+  "unique_items": 122,
+  "unique_ever_approved": 1,
+  "ub_judgment": 0.0026860524433870883,
+  "ub_item": 0.0448226574330924
  },
  "no_evidence": {
   "original": {

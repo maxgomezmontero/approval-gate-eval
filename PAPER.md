@@ -17,11 +17,13 @@ oversight rarely uses together: signal detection theory, prevalence and serial-p
 attribute agreement analysis, and acceptance sampling. We apply them to LLM reviewers of ERP change
 proposals in a synthetic industrial back office. The proposals are seeded perturbations (six subtle
 defect types), not outputs of a live agent. Four Claude reviewers (Haiku at low and default effort,
-Sonnet, Opus), run as Claude Code subagents, made 50,160 item decisions in 1,528 review runs.
+Sonnet, Opus), run as Claude Code subagents, made 60,720 item decisions in 1,880 review runs.
 
-(1) With the source email attached, **no defective proposal was approved**: 0 of 1,432 judgments on 82
-unique defective items (exact 95% upper bound 0.26% per judgment, 4.4% per unique item). At this ceiling
-the stimuli cannot test prevalence, persuasion or queue-length effects on misses. (2) **The reporting
+(1) With the source evidence attached, **reviewers approved 1 of 2,072 defective-proposal judgments**,
+on 122 unique defective items, including threads that required working-day arithmetic and resolving
+corrections (exact 95% upper bound 0.27% per judgment, 4.5% per unique item). At this ceiling the
+stimuli cannot test prevalence, persuasion or queue-length effects on misses, and an exploratory
+prevalence-dependent criterion shift seen in one experiment did not replicate in a larger one. (2) **The reporting
 format changed the measured miss rate**: in a same-session randomized test, Sonnet approved 17 of 140
 defects when answering as a 30-letter string and 0 of 140 when answering item by item. (3) **Without the
 email, reviewers could not discriminate** (d′ ≈ 0) and outcomes were set by the response criterion, which
@@ -117,7 +119,7 @@ the install date once all proposals are applied, a yearless date, or a relative 
 assumed); false alarms are reported separately for **clean** and **cued** items.
 
 The proposals reuse a limited set of underlying items across conditions: across the evidence experiments
-there are **82 unique defective items**, each judged many times. We report bounds at both the judgment
+there are **122 unique defective items** (82 single-source, 40 thread items in Exp 9), each judged many times. We report bounds at both the judgment
 and the item level.
 
 ### 3.2 Factors and experiments
@@ -147,8 +149,9 @@ and the item level.
 | 7 | superseding evidence | a later email overrides the card's source; 11 queues × 2 displays × 4 × 2 runs | 176 |
 | 7r | 7 with "correct given everything shown" wording | 11 × 4 × 2 | 88 |
 | 8 | key-free (regex) alignment | 11 × 4 | 44 |
+| 9 | harder evidence: 3-message threads, within-item prevalence | 4 base queues × (1 at 10/30 + 10 at 1/30) × terse/misquote × 4 | 352 |
 
-Total: 1,528 runs, 50,160 item decisions (plus a 4-run pilot).
+Total: 1,880 runs, 60,720 item decisions (plus two pilots, 12 runs).
 
 ### 3.3 Measures and analysis
 
@@ -163,19 +166,23 @@ display. Acceptance sampling uses a rectifying single-sampling plan per reviewed
 
 ## 4. Results
 
-### 4.1 With the evidence attached: no misses, and a ceiling
+### 4.1 With the evidence attached: almost no misses, and a ceiling
 
 Across Exp 1b, 3, 4 and 5, reviewers saw the source email for 1,432 defect judgments covering 82 unique
-defective items and approved none. Exact 95% upper bounds: 0.26% if judgments are independent, 4.4% if all
-judgments of an item are perfectly correlated; per defect type (11–16 unique items each) the item-level
-bound is 21–28%. This held for every reviewer, both justification styles, the misquoting justification
-(0/280 judgments), every prevalence in the within-item design (0/232), and queues of 90 and 150 items
-(0/216).
+defective items and approved none. Exp 9 made the evidence harder: each source was a three-message thread
+in which the correct value required the newest message, sometimes working-day arithmetic, while the
+thread also carried the superseded value, a value for the customer's other project and a value for the
+other date field. Reviewers approved 1 of 640 defect judgments there (Sonnet, a working-day calculation,
+in a single-defect queue). Overall: 1 of 2,072 judgments on 122 unique defective items. Exact 95% upper
+bounds: 0.27% if judgments are independent, 4.5% at the unique-item level; per defect type (10–16 unique
+items each) the item-level bound is 21–45%. This held for every reviewer, both justification styles, the
+misquoting justification (0/280 in Exp 3, 0/320 in Exp 9), both prevalences in the within-item designs
+(Exp 4: 0/232; Exp 9: 1/320 at 1/30, 0/320 at 10/30), and queues of 90 and 150 items (0/216).
 
 Because sensitivity is at ceiling, these data **cannot** test a prevalence, persuasion or
-queue-length effect on misses; we report them as "none observed" with the bounds above. Each defect here
-is resolvable by comparing the card with one short templated email, which is easier than most real
-inspection tasks.
+queue-length effect on misses; we report them as "none observed" with the bounds above. Even the Exp 9
+threads are short, templated and complete; real inspection evidence is longer, messier and sometimes
+missing.
 
 ### 4.2 The reporting format is part of the measurement system
 
@@ -257,9 +264,13 @@ which on our stimuli would stop `sibling_project` and `wrong_field` defects with
 On items that are never defective, embedded in versions of the same queue with 1, 3 or 10 defects, Haiku
 at low effort held back 15.1% (45/298) of clean items at 1/30, 13.6% (12/88) at 3/30 and 0% (0/28) at
 10/30; Haiku 16.4%, 8.0%, 14.3%; Opus held back only cued items (9.8%, 12.5%, 0%); Sonnet none. For Haiku
-at low effort this is a criterion shift with prevalence, in the *opposite* direction to the human
-prevalence effect (more conservative when defects are rare). It rests on two base queues and 28 clean
-items at the highest prevalence, so we report it as exploratory.
+at low effort this looked like a criterion shift with prevalence, in the *opposite* direction to the human
+prevalence effect (more conservative when defects are rare), but it rested on two base queues and 28 clean
+items at the highest prevalence. **It did not replicate** in Exp 9 (four base queues, same within-item
+design): on never-defective items the paired difference in false alarms between 1/30 and 10/30 was within
+±9 points for every reviewer, with content-clustered CIs spanning zero (Haiku-low clean items: 4.7% vs
+5.9%, difference −1.2 [−8, +6]). We conclude no detectable prevalence effect on either misses or the
+criterion in the evidence-attached conditions.
 
 ### 4.7 Queue length and serial position (Exp 5)
 
@@ -291,13 +302,13 @@ defective, otherwise screen all 30 (rectifying single sampling). The average out
 94.9 defects per 1,000 approved for n = 3, 55.8 for n = 5 and 23.4 for n = 10 (binomial approximation).
 For a 5% agent defect rate reviewed in a forced-choice card view, the defect rate entering the sampling
 step is about 2.7–3.7%, so even n = 10 sampling leaves an outgoing rate of the same order. Attaching the
-evidence brought the incoming rate to zero in our data (item-level upper bound 4.4% × 5% ≈ 0.2%).
+evidence brought the incoming rate to nearly zero in our data (1 of 2,072 judgments; item-level upper bound 4.5% × 5% ≈ 0.2%).
 In acceptance-sampling terms, improving the inspection station did far more than a sampling plan could.
 
 ## 5. Discussion
 
 **Design rules for agent approval queues.**
-1. **Put the evidence on the card.** With it, no reviewer approved a defect; without it, reviewers could
+1. **Put the evidence on the card.** With it, reviewers approved 1 of 2,072 defect judgments; without it, reviewers could
    not discriminate at all and either held everything or approved most things.
 2. **Add deterministic checks before the reviewer (poka-yoke).** A job and field consistency check
    would block two of our six defect types with no judgement involved.
@@ -325,7 +336,7 @@ misses.
 - **Synthetic, templated proposals and emails**, written by the author, in one domain. The proposals are
   seeded perturbations, not outputs of a live agent, so the defect mix is ours, not an agent's.
 - **Detection ceiling** with evidence attached; null results on misses are bounds, not effects.
-- **Few independent units**: 82 unique defective items with evidence, 11 queue contents (6 in the
+- **Few independent units**: 122 unique defective items with evidence, 11 queue contents (6 in the
   replication) for the no-evidence comparisons. Effects we lead with are large and replicated; smaller
   ones are labelled exploratory.
 - **Reviewers are Claude Code subagents**, with the harness's system prompt and tools, unstated sampling
@@ -338,8 +349,8 @@ misses.
 
 ## 7. Conclusion
 
-With the evidence on the card, LLM reviewers in this testbed approved none of 82 unique defects across
-1,432 judgments. The failures lived elsewhere: in the reporting format, in queues that show a card
+With the evidence on the card, LLM reviewers in this testbed approved 1 of 2,072 defective-proposal
+judgments on 122 unique defects, including multi-message threads. The failures lived elsewhere: in the reporting format, in queues that show a card
 without its source, and in decision sets without a hold. In the no-evidence view the reviewers were
 neither sensitive nor repeatable, and what passed depended on the model and the buttons offered. These
 are engineering problems with engineering fixes, and inspection science has the vocabulary to state them.
@@ -395,7 +406,10 @@ files each reviewer read.
 
 ## Appendix C. Changes after referee review
 
-- Units: reported 82 unique defective items, item-level bounds and per-type bounds; replaced degenerate
+- Ceiling: added Exp 9 (three-message threads with working-day arithmetic and distractor values) to
+  raise difficulty; it stayed near ceiling (1/640). Its within-item design was also used to test, and
+  failed to replicate, the exploratory criterion shift from Exp 4.
+- Units: reported unique defective items (122 after Exp 9), item-level bounds and per-type bounds; replaced degenerate
   bootstrap intervals with exact intervals; clustered bootstraps by queue content; paired where paired.
 - Ceiling: rephrased all null results as bounds; removed "opposite of what inspection science
   predicts"; added the prevalence-dependent criterion shift (Section 4.6).

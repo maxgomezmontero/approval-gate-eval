@@ -105,8 +105,8 @@ def load(name: str) -> list[dict]:
 def uid(r: dict) -> str:
     """Unique defective item across experiments: (base content, position) after removing render variants."""
     c = r["content"]
-    if c.startswith("x"):
-        c = c[:2]  # Exp 4 versions share the base items
+    if c.startswith(("x", "h")):
+        c = c[:2]  # Exp 4 and Exp 9 versions share the base items
     return f"{c}:{r['pos']}"
 
 
@@ -118,28 +118,31 @@ def main() -> None:
     v2, v3, x34, x56, x7, rep = (load(n) for n in ("raw_main.txt", "raw_v3.txt", "raw_exp34.txt", "raw_exp56.txt",
                                                    "raw_exp7.txt", "raw_replication.txt"))
     rev = load("raw_revision.txt")
+    x9 = load("raw_exp9.txt")
 
-    # 1. zero-miss claim at the right unit
-    ev = [r for r in v3 + x34 + [r for r in x56 if r["content"].startswith("L")]
+    # 1. zero-miss claim at the right unit (Exp 1b, 3, 4, 5 and 9: evidence shown, single-source or thread)
+    ev = [r for r in v3 + x34 + [r for r in x56 if r["content"].startswith("L")] + x9
           if r["display"] in ("source", "aligned") and r["signal"]]
     k = sum(1 - r["reject"] for r in ev)
     uniq = {uid(r) for r in ev}
+    k_items = len({uid(r) for r in ev if not r["reject"]})
     by_type = defaultdict(set)
     for r in ev:
         by_type[r["defect"]].add(uid(r))
     lo_j, hi_j = clopper_pearson(k, len(ev))
-    lo_i, hi_i = clopper_pearson(0, len(uniq))
+    lo_i, hi_i = clopper_pearson(k_items, len(uniq))
     out.append("\n## 1. Misses with the evidence shown, at the right unit\n\n"
-               f"{k} approved out of {len(ev)} defect judgments on **{len(uniq)} unique defective items**. "
-               f"Exact 95% upper bound: {100 * hi_j:.2f}% if judgments were independent; "
-               f"{100 * hi_i:.1f}% treating each unique item as one observation (perfect within-item correlation). "
-               "Per reviewer (each saw every unique item at least once): "
-               f"upper bound {100 * clopper_pearson(0, len(uniq))[1]:.1f}% at the item level.\n\n"
+               f"{k} approved out of {len(ev)} defect judgments on **{len(uniq)} unique defective items** "
+               f"({k_items} unique item(s) ever approved). Exact 95% upper bound: {100 * hi_j:.2f}% if judgments "
+               f"were independent; {100 * hi_i:.1f}% treating each unique item as one observation.\n\n"
                "| defect type | unique items | judgments | approved | item-level 95% upper bound |\n|---|---|---|---|---|\n")
     for d, s in sorted(by_type.items()):
         n_j = sum(1 for r in ev if r["defect"] == d)
-        out.append(f"| {d} | {len(s)} | {n_j} | 0 | {100 * clopper_pearson(0, len(s))[1]:.0f}% |\n")
-    J["evidence"] = {"judgments": len(ev), "approved": k, "unique_items": len(uniq), "ub_judgment": hi_j, "ub_item": hi_i}
+        k_d = sum(1 - r["reject"] for r in ev if r["defect"] == d)
+        k_di = len({uid(r) for r in ev if r["defect"] == d and not r["reject"]})
+        out.append(f"| {d} | {len(s)} | {n_j} | {k_d} | {100 * clopper_pearson(k_di, len(s))[1]:.0f}% |\n")
+    J["evidence"] = {"judgments": len(ev), "approved": k, "unique_items": len(uniq), "unique_ever_approved": k_items,
+                     "ub_judgment": hi_j, "ub_item": hi_i}
 
     # 2. no-evidence views: decision set x reviewer, content-clustered, paired
     def no_ev(card_rows, forced_rows, label):

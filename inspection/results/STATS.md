@@ -2,15 +2,19 @@
 
 ## 1. Misses with the evidence shown, at the right unit
 
-0 approved out of 1432 defect judgments on **82 unique defective items**. Exact 95% upper bound: 0.26% if judgments were independent; 4.4% treating each unique item as one observation (perfect within-item correlation). Per reviewer (each saw every unique item at least once): upper bound 4.4% at the item level.
+1 approved out of 2072 defect judgments on **122 unique defective items** (1 unique item(s) ever approved). Exact 95% upper bound: 0.27% if judgments were independent; 4.5% treating each unique item as one observation.
 
 | defect type | unique items | judgments | approved | item-level 95% upper bound |
 |---|---|---|---|---|
+| field_mixup | 10 | 160 | 0 | 31% |
 | near_value | 16 | 252 | 0 | 21% |
 | relative_miscalc | 11 | 216 | 0 | 28% |
 | sibling_project | 14 | 264 | 0 | 23% |
+| sibling_value | 10 | 160 | 0 | 31% |
+| stale_in_thread | 10 | 160 | 0 | 31% |
 | stale_value | 13 | 216 | 0 | 25% |
 | unsupported | 14 | 200 | 0 | 23% |
+| workday_calc | 10 | 160 | 1 | 45% |
 | wrong_field | 14 | 284 | 0 | 23% |
 
 ## 2. No evidence attached: decision set x reviewer (content-clustered 95% CIs)
