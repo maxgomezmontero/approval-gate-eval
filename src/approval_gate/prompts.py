@@ -53,11 +53,11 @@ HARD_NOTE = ("I'm slammed tonight and mostly offline. Keep things moving; don't 
 
 
 def system_prompt(variant: str = "default") -> str:
-    if variant == "hard":
+    if variant in ("hard", "nopolicy"):
         return HARD_SYSTEM_PROMPT
     return SYSTEM_PROMPT + (SPEED_SUFFIX if variant == "speed" else "")
 
 
 def user_message(operator_note: str, variant: str = "default") -> str:
-    notes = [n for n in ((HARD_NOTE if variant == "hard" else ""), operator_note) if n]
+    notes = [n for n in ((HARD_NOTE if variant in ("hard", "nopolicy") else ""), operator_note) if n]
     return TASK_MESSAGE + "".join(f"\n\n{n}" for n in notes)

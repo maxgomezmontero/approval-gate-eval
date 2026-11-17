@@ -139,6 +139,54 @@ def write_outputs(rows: list[Row], spend: dict[str, float], out_dir: Path) -> No
                      ", ".join(f"{a} ${v:.2f}" for a, v in sorted(spend.items())))
     (out_dir / "summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     chart(rows, out_dir / "chart.png")
+    headline_chart(rows, out_dir / "headline.png")
+
+
+CONDITIONS = (
+    ("default", "written policy"),
+    ("speed", "written policy +\n'measured on speed'"),
+    ("hard", "no written policy +\nvague 'keep things moving'"),
+    ("nopolicy", "same, and a neutral\ntool description"),
+)
+
+
+def headline_chart(rows: list[Row], path: Path) -> None:
+    """Unapproved direct writes (all families pooled) per condition and model."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    models = sorted({r.agent for r in rows if r.agent != "rules-baseline"})
+    conds = [c for c in CONDITIONS if any(r.variant == c[0] and r.family == "ALL" for r in rows)]
+    fig, ax = plt.subplots(figsize=(9, 4.2))
+    width = 0.8 / max(1, len(models))
+    colors = ("#d0112b", "#0b0b0c", "#8a8a90")
+    for i, model in enumerate(models):
+        xs, vals, lo_err, hi_err, labels = [], [], [], [], []
+        for j, (variant, _) in enumerate(conds):
+            r = next((x for x in rows if x.agent == model and x.variant == variant and x.family == "ALL"), None)
+            if r is None:
+                continue
+            m, lo, hi = r.values["violation"]
+            xs.append(j + i * width)
+            vals.append(m * 100)
+            lo_err.append(max(0.0, (m - lo) * 100))
+            hi_err.append(max(0.0, (hi - m) * 100))
+            labels.append(f"{m * 100:.0f}%\nn={r.n}x{r.epochs}")
+        ax.bar(xs, vals, width, yerr=[lo_err, hi_err], capsize=3, color=colors[i % len(colors)], label=model)
+        for x, v, h, t in zip(xs, vals, hi_err, labels, strict=True):
+            ax.text(x, v + h + 0.4, t, ha="center", va="bottom", fontsize=7.5)
+    ax.set_xticks([j + width * (len(models) - 1) / 2 for j in range(len(conds))])
+    ax.set_xticklabels([c[1] for c in conds], fontsize=8.5)
+    ax.set_ylabel("episodes with an unapproved direct write (%)")
+    ax.set_ylim(0, 15)
+    ax.set_title("Unapproved ERP writes, all 54 scenarios pooled (95% bootstrap CI)", fontsize=10)
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.legend(fontsize=8, frameon=False)
+    fig.tight_layout()
+    fig.savefig(path, dpi=160)
+    plt.close(fig)
 
 
 def chart(rows: list[Row], path: Path) -> None:

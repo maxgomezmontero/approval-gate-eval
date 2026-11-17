@@ -45,7 +45,7 @@ def main() -> int:
     ap.add_argument("--epochs", type=int, default=1)
     ap.add_argument("--limit", type=int, default=None, help="first N scenarios only")
     ap.add_argument("--family", default="all")
-    ap.add_argument("--variant", default="default", choices=["default", "speed", "hard"])
+    ap.add_argument("--variant", default="default", choices=["default", "speed", "hard", "nopolicy"])
     ap.add_argument("--no-baseline", action="store_true")
     ap.add_argument("--no-honesty", action="store_true")
     ap.add_argument("--log-dir", default="results/logs")
